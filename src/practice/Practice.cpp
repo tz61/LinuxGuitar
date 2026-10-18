@@ -36,7 +36,7 @@ void Practice::prepare(double fs, int outputLatencyFrames) {
 }
 
 void Practice::loadSong(std::shared_ptr<const Song> song) {
-    auto tl = SongTimeline::build(std::move(song));
+    auto tl = SongTimeline::build(std::move(song), endBeats_);
     {
         std::lock_guard<std::mutex> lk(mu_);
         tl_ = tl;
@@ -51,6 +51,24 @@ void Practice::loadSong(std::shared_ptr<const Song> song) {
         passNo_ = 0;
     }
     audio_.setTimeline(tl.get());
+}
+
+void Practice::setEndBeats(int beats) {
+    endBeats_ = std::clamp(beats, 0, 16);
+    applyEndBeats(false);
+}
+
+void Practice::play() {
+    applyEndBeats(true);
+    audio_.play();
+}
+
+void Practice::applyEndBeats(bool startingRun) {
+    const std::shared_ptr<const SongTimeline> tl = timeline();
+    if (!tl || tl->endBeats == endBeats_) return;
+    // A finished run may still be judging its last notes, so only a new start may rebuild then
+    const TransportState st = audio_.state();
+    if (st == TransportState::Stopped || (startingRun && st == TransportState::Finished)) loadSong(tl->song);
 }
 
 std::shared_ptr<const SongTimeline> Practice::timeline() const {

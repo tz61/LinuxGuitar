@@ -70,6 +70,7 @@ private:
     void drawLibrary(float w);
     void drawSongHeader();
     void drawTransport();
+    void drawMetronomeOptions(float width);  // metronome volume, count-in and ending beats (practice popup + Settings)
     void drawTimeline(float h);
     void drawHighway(ImVec2 size);
     void drawPitchRoll(ImVec2 size);

@@ -77,7 +77,7 @@ Run `guitarstudio --help` for the full list.
    notes + strums).
 2. **Tune**: on the Tuner page, pluck the open strings one at a time starting with string 6. The needle turns green in the
    middle when the string is in tune. Click the boxes below to hear the reference pitches.
-3. **Practice**: on the Practice page pick "Lesson 1: Open Strings" on the left and press **Space**. After one bar of count-in,
+3. **Practice**: on the Practice page pick "Lesson 1: Open Strings" on the left and press **Space**. After two count-in clicks,
    play the string and fret shown when a note reaches the **orange line**.
 
 > Start with the **speed** at 50–70%, or turn on **wait mode** (the song only continues when you play the right note).
@@ -95,6 +95,8 @@ Run `guitarstudio --help` for the full list.
 - **Speed** 25–150% (↑↓). **A-B loop**: Shift+drag on the overview bar to select a section (L toggles it); every pass is scored.
 - **Wait mode** (W): stops at each note until you play it right, and plays it for you first.
 - **Metronome** (M), **reference** (R, a synthesized guitar plays the song), **count-in**, and adjustable judging tolerance.
+  Metronome volume, count-in beats and how many beats after the last note a run ends (2 each by default) are under
+  "Volume / judging..." on the Practice page and in Settings → Practice.
 - Chords are recognized by pitch class (chroma); single notes use McLeod pitch detection plus a comparison of harmonic salience
   before and after the onset, so judging still works while other strings keep ringing.
 

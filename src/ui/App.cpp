@@ -263,6 +263,8 @@ void App::syncPractice() {
     pa.reference = settings_.reference;
     pa.referenceVol = settings_.referenceVol;
     pa.countIn = settings_.countIn;
+    pa.countInBeats = settings_.countInBeats;
+    practice_.setEndBeats(settings_.endBeats);
     pa.freeBpm = settings_.freeBpm;
     pa.freeBeatsPerBar = settings_.beatsPerBar;
     practice_.tolerance = settings_.tolerance;

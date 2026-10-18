@@ -65,8 +65,11 @@ public:
 
     void loadSong(std::shared_ptr<const Song> song);  // UI thread
     std::shared_ptr<const SongTimeline> timeline() const;
+    // Beats after the last note before a run ends (0 = at the end of the last bar). A change rebuilds the
+    // timeline once the transport is stopped, or when the next run starts; never in the middle of a run.
+    void setEndBeats(int beats);
 
-    void play() { audio_.play(); }
+    void play();
     void pause() { audio_.pause(); }
     void stop() { audio_.stop(); }
     void seek(double sec) { audio_.seek(sec); }
@@ -124,6 +127,8 @@ private:
 
     mutable std::mutex mu_;  // protects the UI-visible data below
     std::shared_ptr<const SongTimeline> tl_;
+    int endBeats_ = 0;
+    void applyEndBeats(bool startingRun);
     std::vector<std::shared_ptr<const SongTimeline>> keepAlive_;  // the audio thread holds raw pointers; never freed while running
     std::vector<EventResult> results_;
     int combo_ = 0, maxCombo_ = 0;

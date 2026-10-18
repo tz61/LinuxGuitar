@@ -48,7 +48,7 @@ std::vector<Field> fields(Settings& s) {
         I("inputChannel", s.inputChannel), F("inputGainDb", s.inputGainDb), I("outputTarget", s.outputTarget), F("masterDb", s.masterDb),
         F("guitarDb", s.guitarDb), F("speed", s.speed), B("waitMode", s.waitMode), B("metronome", s.metronome),
         F("metronomeVol", s.metronomeVol), B("reference", s.reference), F("referenceVol", s.referenceVol),
-        B("countIn", s.countIn), F("tolerance", s.tolerance), F("latencyOffsetMs", s.latencyOffsetMs),
+        B("countIn", s.countIn), I("countInBeats", s.countInBeats), I("endBeats", s.endBeats), F("tolerance", s.tolerance), F("latencyOffsetMs", s.latencyOffsetMs),
         B("autoStart", s.autoStart), F("zoom", s.zoom), F("freeBpm", s.freeBpm), I("beatsPerBar", s.beatsPerBar),
         F("a4", s.a4), B("tunerMute", s.tunerMute), I("tuning", s.tuning), I("language", s.language), F("uiScale", s.uiScale), I("winW", s.winW),
         I("winH", s.winH), B("winMax", s.winMax), I("tab", s.tab),

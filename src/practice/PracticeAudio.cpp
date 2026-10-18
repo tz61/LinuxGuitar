@@ -57,7 +57,7 @@ void PracticeAudio::renderDemoInput(float* buf, int n) {
         } else {
             const double ahead = 0.25;  // schedule ahead (allows playing early)
             const double base = state_ == TransportState::CountIn
-                                    ? (tl_->countInBeats * countInBeatSamples_ - countInElapsed_) / fs_
+                                    ? (countInTotal_ * countInBeatSamples_ - countInElapsed_) / fs_
                                     : 0.0;
             while (demoNextEv_ < (int)tl_->events.size() &&
                    tl_->events[demoNextEv_].time < pos_ + ahead * sp && (state_ == TransportState::Playing || base < ahead)) {
@@ -130,6 +130,7 @@ void PracticeAudio::handleCommands(uint64_t frameClock) {
                 if (countIn.load()) {
                     state_ = TransportState::CountIn;
                     countInClicked_ = 0;
+                    countInTotal_ = std::clamp(countInBeats.load(), 1, 8);
                     countInElapsed_ = 0;
                     countInBeatSamples_ = tl_->countInBeatSec / sp * fs_;
                 } else {
@@ -213,7 +214,7 @@ void PracticeAudio::process(float* L, float* R, int n, uint64_t frameClock) {
     while (i < n && ++guard < 10000) {
         const int k = n - i;
         if (state_ == TransportState::CountIn && tl_) {
-            const int beats = tl_->countInBeats;
+            const int beats = countInTotal_;
             const double mark = countInClicked_ < beats ? countInClicked_ * countInBeatSamples_ : beats * countInBeatSamples_;
             const double until = mark - countInElapsed_;
             if (until <= k) {
@@ -330,7 +331,7 @@ void PracticeAudio::process(float* L, float* R, int n, uint64_t frameClock) {
     waitEv_pub_.store(holding_ ? nextEv_ : -1, std::memory_order_relaxed);
     frame_pub_.store(frameClock + (uint64_t)n, std::memory_order_relaxed);
     if (state_ == TransportState::CountIn && tl_)
-        countIn_pub_.store((float)(tl_->countInBeats - countInElapsed_ / std::max(1.0, countInBeatSamples_)),
+        countIn_pub_.store((float)(countInTotal_ - countInElapsed_ / std::max(1.0, countInBeatSamples_)),
                            std::memory_order_relaxed);
     else
         countIn_pub_.store(0.f, std::memory_order_relaxed);

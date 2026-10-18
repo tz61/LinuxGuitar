@@ -51,6 +51,7 @@ public:
     std::atomic<bool> reference{true};
     std::atomic<float> referenceVol{0.5f};
     std::atomic<bool> countIn{true};
+    std::atomic<int> countInBeats{2};  // clicks before playing starts (and before resuming)
     std::atomic<bool> loopOn{false};
     AtomicDouble loopA{0}, loopB{0};
 
@@ -100,7 +101,7 @@ private:
     TransportState state_ = TransportState::Stopped;
     double pos_ = 0;
     int nextEv_ = 0, nextBeat_ = 0;
-    int countInClicked_ = 0;
+    int countInClicked_ = 0, countInTotal_ = 2;
     double countInElapsed_ = 0, countInBeatSamples_ = 0;
     bool holding_ = false;
     std::atomic<uint32_t> waitSeq_{0}, satisfiedSeq_{0};

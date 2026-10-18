@@ -35,6 +35,8 @@ struct FretMark {
 };
 void Fretboard(ImDrawList* dl, ImVec2 pos, ImVec2 size, int firstFret, int lastFret, const FretMark* marks, int n);
 void HelpTip(const char* text);
+// Slider for a 0..1 value, shown as 0-100%
+bool PercentSlider(const char* label, float* v);
 void SectionTitle(const char* text, ImU32 col = 0);
 // Keep the next widget (width w) on the same line if it fits, otherwise wrap (toolbars wrap when scaled up)
 void SameLineIfFits(float w);

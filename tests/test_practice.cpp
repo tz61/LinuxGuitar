@@ -44,6 +44,7 @@ static RunResult runSong(const std::string& gtab, float jitterMs, float wrong, f
         ++g_fail;
         return {};
     }
+    pr.setEndBeats(2);  // the app's default: the run ends 2 beats after the last note
     pr.loadSong(song);
     auto& pa = pr.audio();
     pa.demoPlayer = true;
@@ -95,6 +96,82 @@ static RunResult runSong(const std::string& gtab, float jitterMs, float wrong, f
     return rr;
 }
 
+static std::shared_ptr<Song> songFrom(const std::string& gtab) {
+    auto song = std::make_shared<Song>();
+    std::string err;
+    if (!parseGtab(gtab, *song, err)) {
+        std::printf("  parse failed: %s\n", err.c_str());
+        ++g_fail;
+    }
+    return song;
+}
+
+// Count-in clicks and the run's ending (beats after the last note) are settings
+static void testCountInAndEnding() {
+    std::printf("== Count-in and ending ==\n");
+    // Lesson-1 style ending: a whole note at 60 BPM, so the last bar used to run 4 s past the last note
+    auto whole = songFrom("bpm: 60\ntime: 4/4\n6.0/4 6.0 6.0 6.0 | 6.0/1 |\n");
+    {
+        auto bar = SongTimeline::build(whole, 0), two = SongTimeline::build(whole, 2);
+        CHECK(std::fabs(bar->length - 8.0) < 1e-6, "bar ending: length %.3f, expected 8", bar->length);
+        CHECK(std::fabs(two->length - 6.0) < 1e-6, "2-beat ending: length %.3f, expected 6", two->length);
+        CHECK(!two->beatTimes.empty() && two->beatTimes.back() < two->length - 1e-6, "2-beat ending: a click at or after the end");
+        CHECK(two->beatTimes.size() == 6, "2-beat ending: %zu clicks, expected 6", two->beatTimes.size());
+    }
+    // Last note on beat 4: a 2-beat ending reaches into a new bar, which gets its accented click
+    {
+        auto tl = SongTimeline::build(songFrom("bpm: 60\ntime: 4/4\n3.0/4 3.0 3.0 3.0 |\n"), 2);
+        CHECK(std::fabs(tl->length - 5.0) < 1e-6, "ending past the last bar: length %.3f, expected 5", tl->length);
+        CHECK(tl->barTimes.size() == 2 && std::fabs(tl->barTimes.back() - 4.0) < 1e-6, "ending past the last bar: %zu bars",
+              tl->barTimes.size());
+        CHECK(tl->beatTimes.size() == 5 && tl->beatAccent.back() == 1, "ending past the last bar: %zu clicks", tl->beatTimes.size());
+    }
+    // 6/8 clicks on dotted quarters, so are the ending beats and the count-in clicks
+    {
+        auto tl = SongTimeline::build(songFrom("bpm: 60\ntime: 6/8\n3.0/8 3.0 3.0 3.0 3.0 3.0 |\n"), 2);
+        CHECK(std::fabs(tl->length - (2.5 + 3.0)) < 1e-6, "6/8 ending: length %.3f, expected 5.5", tl->length);
+        CHECK(std::fabs(tl->countInBeatSec - 1.5) < 1e-6, "6/8 count-in beat %.3f s, expected 1.5", tl->countInBeatSec);
+    }
+
+    // Transport: 2 count-in clicks, then the run ends 2 beats after the last note
+    const double fs = 48000;
+    const int block = 64;
+    Analyzer an;
+    an.configure(fs);
+    Practice pr(an);
+    pr.prepare(fs, 0);
+    pr.setEndBeats(2);
+    pr.loadSong(whole);
+    auto& pa = pr.audio();
+    pa.countIn = true;
+    pa.countInBeats = 2;
+    pr.play();
+    std::vector<float> L(block), R(block);
+    uint64_t clock = 0;
+    double playingAt = -1, finishedAt = -1;
+    bool rebuiltMidRun = false;
+    while (clock < (uint64_t)(20 * fs) && finishedAt < 0) {
+        std::fill(L.begin(), L.end(), 0.f);
+        std::fill(R.begin(), R.end(), 0.f);
+        pa.process(L.data(), R.data(), block, clock);
+        clock += block;
+        const double t = clock / fs;
+        if (playingAt < 0 && pa.state() == TransportState::Playing) playingAt = t;
+        if (pa.state() == TransportState::Finished) finishedAt = t;
+        if (t > 3 && t < 3.01) {
+            pr.setEndBeats(4);  // changed in the middle of a run: only the next run uses it
+            rebuiltMidRun = pr.timeline()->endBeats != 2;
+        }
+    }
+    std::printf("  count-in %.3f s, run finished at %.3f s\n", playingAt, finishedAt);
+    CHECK(std::fabs(playingAt - 2.0) < 0.01, "count-in took %.3f s, expected 2 clicks (2 s)", playingAt);
+    CHECK(std::fabs(finishedAt - 8.0) < 0.01, "run finished at %.3f s, expected 2 + 6", finishedAt);
+    CHECK(!rebuiltMidRun, "the timeline was rebuilt in the middle of a run");
+    pr.play();  // a new run picks up the changed ending
+    CHECK(pr.timeline()->endBeats == 4 && std::fabs(pr.timeline()->length - 8.0) < 1e-6,
+          "new run: ending %d beats, length %.3f", pr.timeline()->endBeats, pr.timeline()->length);
+}
+
 static void print(const char* name, const RunResult& r) {
     const auto& s = r.st;
     std::printf("  %-30s notes %3d judged %3d | perfect %3d good %3d ok %2d wrong %2d miss %2d | hit %5.1f%% score %5.1f%% | mean offset %+5.1f ms (|%4.1f|) combo %d%s\n",
@@ -119,6 +196,7 @@ bpm: 80
 time: 4/4
 [G]/2 [G]/2 | [C]/2 [C]/2 | [D]/2 [D]/2 | [Em]/2 [Em]/2 | [Am]/2 [Am]/2 | [C]/2 [D]/2 | [G]/1 |
 )";
+    testCountInAndEnding();
     std::printf("== End-to-end practice scoring (simulated player) ==\n");
     {
         auto r = runSong(melody, 12, 0, 0, false);

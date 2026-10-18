@@ -33,6 +33,8 @@ struct Settings {
     bool reference = true;
     float referenceVol = 0.45f;
     bool countIn = true;
+    int countInBeats = 2;               // count-in clicks before a song starts
+    int endBeats = 2;                   // beats after the last note before the run ends
     float tolerance = 1.f;
     float latencyOffsetMs = 0.f;
     bool autoStart = true;

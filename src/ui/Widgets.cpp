@@ -444,6 +444,13 @@ void HelpTip(const char* text) {
     }
 }
 
+bool PercentSlider(const char* label, float* v) {
+    float pct = *v * 100.f;
+    if (!ImGui::SliderFloat(label, &pct, 0.f, 100.f, "%.0f%%")) return false;
+    *v = std::clamp(pct, 0.f, 100.f) / 100.f;
+    return true;
+}
+
 void SectionTitle(const char* text, ImU32 col) {
     ImGui::PushFont(boldFont(), 0.f);
     ImGui::PushStyleColor(ImGuiCol_Text, ImGui::ColorConvertU32ToFloat4(col ? col : P.accent2));

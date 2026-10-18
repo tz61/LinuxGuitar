@@ -184,6 +184,18 @@ void App::drawSongHeader() {
     }
 }
 
+void App::drawMetronomeOptions(float width) {
+    ImGui::SetNextItemWidth(width);
+    PercentSlider(tr("Metronome volume"), &settings_.metronomeVol);
+    HelpTip(tr("Also the volume of the standalone metronome in the top bar."));
+    ImGui::SetNextItemWidth(width);
+    ImGui::SliderInt(tr("Count-in beats"), &settings_.countInBeats, 1, 8);
+    HelpTip(tr("How many clicks the metronome gives before the song starts (and after a pause), when \"Count-in\" is on."));
+    ImGui::SetNextItemWidth(width);
+    ImGui::SliderInt(tr("Ending beats"), &settings_.endBeats, 1, 8);
+    HelpTip(tr("How many beats after the last note the run ends and your score is shown."));
+}
+
 void App::drawTransport() {
     const float s = S();
     PracticeAudio& pa = practice_.audio();
@@ -194,8 +206,11 @@ void App::drawTransport() {
     ImGui::BeginDisabled(!tl);
     if (IconButton("##stop", IconBack, bs, false, 0, tr("Back to the start (Esc)"))) practice_.stop();
     ImGui::SameLine();
+    char startTip[128];
+    if (settings_.countIn) std::snprintf(startTip, sizeof startTip, tr("Start (Space): %d beats of count-in first"), settings_.countInBeats);
+    else std::snprintf(startTip, sizeof startTip, "%s", tr("Start (Space)"));
     if (IconButton("##play", playing ? IconPause : IconPlay, ImVec2(58 * s, 36 * s), true, playing ? P.yellow : P.green,
-                   playing ? tr("Pause (Space)") : tr("Start (Space): one bar of count-in first"))) {
+                   playing ? tr("Pause (Space)") : startTip)) {
         if (playing) practice_.pause();
         else practice_.play();
     }
@@ -228,15 +243,17 @@ void App::drawTransport() {
     SameLineIfFits(chipW(tr("Reference")));
     ToggleChip(tr("Reference"), &settings_.reference, P.green, tr("A synthesized guitar plays the song so you can hear how it should sound (R)"));
     SameLineIfFits(chipW(tr("Count-in")));
-    ToggleChip(tr("Count-in"), &settings_.countIn, P.yellow, tr("Click one bar before starting"));
+    char countInTip[128];
+    std::snprintf(countInTip, sizeof countInTip, tr("Click %d beats before starting (change it under \"Volume / judging...\")"),
+                  settings_.countInBeats);
+    ToggleChip(tr("Count-in"), &settings_.countIn, P.yellow, countInTip);
     SameLineIfFits(TextWidth(tr("Volume / judging...")) + 2 * ImGui::GetStyle().FramePadding.x);
     if (ImGui::Button(tr("Volume / judging..."))) ImGui::OpenPopup("practice_opts");
     if (ImGui::BeginPopup("practice_opts")) {
         SectionTitle(tr("Practice options"));
+        drawMetronomeOptions(200 * s);
         ImGui::SetNextItemWidth(200 * s);
-        ImGui::SliderFloat(tr("Metronome volume"), &settings_.metronomeVol, 0.f, 1.f, "%.2f");
-        ImGui::SetNextItemWidth(200 * s);
-        ImGui::SliderFloat(tr("Reference volume"), &settings_.referenceVol, 0.f, 1.f, "%.2f");
+        PercentSlider(tr("Reference volume"), &settings_.referenceVol);
         ImGui::SetNextItemWidth(200 * s);
         ImGui::SliderFloat(tr("Judging tolerance"), &settings_.tolerance, 0.6f, 1.6f, "%.2f");
         HelpTip(tr("1.0 = normal (perfect <= 45 ms, good <= 100 ms, window +/-200 ms). Higher is more forgiving, lower is stricter."));

@@ -443,7 +443,8 @@ void App::drawSettings() {
         engine_.limiterOn = limiterUi_;
     }
 
-    if (ImGui::CollapsingHeader(tr("Practice"))) {
+    if (ImGui::CollapsingHeader(tr("Practice"), ImGuiTreeNodeFlags_DefaultOpen)) {
+        drawMetronomeOptions(300 * s);
         ImGui::SetNextItemWidth(300 * s);
         ImGui::SliderFloat(tr("Latency calibration"), &settings_.latencyOffsetMs, -60.f, 60.f, "%+.0f ms");
         HelpTip(tr("If you are always judged \"late\" although you feel on time, increase this (or decrease it in the opposite case). Usually keep 0."));
