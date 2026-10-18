@@ -1,0 +1,18 @@
+[Desktop Entry]
+Type=Application
+Name=Guitar Studio
+Name[zh_CN]=Guitar Studio 吉他效果器
+GenericName=Guitar Effects and Practice
+GenericName[zh_CN]=吉他效果器与练琴
+Comment=Low-latency guitar effects, tuner, looper and play-along practice
+Comment[zh_CN]=低延迟吉他效果器、调音器、循环器和跟谱练琴
+Icon=guitarstudio
+Exec=@GS_EXEC@ %f
+TryExec=@GS_EXEC@
+Terminal=false
+StartupNotify=true
+StartupWMClass=guitarstudio
+Categories=AudioVideo;Audio;Music;
+Keywords=guitar;effects;amp;distortion;pedal;tuner;looper;metronome;tab;tablature;practice;
+Keywords[zh_CN]=吉他;效果器;音箱;失真;调音器;循环;节拍器;谱子;六线谱;练琴;
+MimeType=text/x-gtab;audio/x-gtp;application/vnd.recordare.musicxml+xml;application/vnd.recordare.musicxml;audio/midi;

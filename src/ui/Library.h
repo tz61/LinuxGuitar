@@ -1,5 +1,5 @@
 #pragma once
-// Song library: built-in lessons (assets/songs) + imported songs (~/.local/share/guitarstudio/songs) and best scores.
+// Song library: built-in lessons (builtinSongDir()) + imported songs (~/.local/share/guitarstudio/songs) and best scores.
 // Titles/descriptions may be bilingual ("English|Chinese"); display them through gs::loc().
 #include <map>
 #include <string>

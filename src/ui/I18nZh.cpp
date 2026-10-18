@@ -9,6 +9,7 @@ void registerUiTranslations() {
         // Window / main
         {"Guitar Studio — Guitar Effects & Practice", "Guitar Studio — 吉他效果器 & 练琴"},
         {"Guitar Studio is already running.\nIt needs exclusive access to the sound card, so only one copy can be open at a time.", "Guitar Studio 已经在运行了.\n它需要独占声卡, 所以同时只能打开一个."},
+        {"To open this song, drag the file into the open Guitar Studio window.", "要打开这个谱子, 请把文件拖进已经打开的 Guitar Studio 窗口."},
         // App: startup, audio, devices
         {"No CJK font (Noto Sans CJK) found; Chinese text may show as boxes", "没有找到中文字体 (Noto Sans CJK), 中文可能显示为方块"},
         {"Last settings", "上次的设置"},

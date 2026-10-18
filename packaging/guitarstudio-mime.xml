@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Song file types that Guitar Studio opens (installed as share/mime/packages/guitarstudio.xml) -->
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="text/x-gtab">
+    <comment>Guitar Studio song</comment>
+    <comment xml:lang="zh_CN">Guitar Studio 谱子</comment>
+    <sub-class-of type="text/plain"/>
+    <generic-icon name="audio-x-generic"/>
+    <glob pattern="*.gtab"/>
+  </mime-type>
+  <!-- Same name as TuxGuitar and MuseScore use. *.gp (Guitar Pro 7/8) is left out: it is also gnuplot's extension -->
+  <mime-type type="audio/x-gtp">
+    <comment>Guitar Pro tablature</comment>
+    <comment xml:lang="zh_CN">Guitar Pro 吉他谱</comment>
+    <generic-icon name="audio-x-generic"/>
+    <glob pattern="*.gp3"/>
+    <glob pattern="*.gp4"/>
+    <glob pattern="*.gp5"/>
+    <glob pattern="*.gpx"/>
+  </mime-type>
+  <!-- Older shared-mime-info versions (e.g. Ubuntu 22.04's) don't know MusicXML yet -->
+  <mime-type type="application/vnd.recordare.musicxml+xml">
+    <comment>MusicXML score</comment>
+    <comment xml:lang="zh_CN">MusicXML 乐谱</comment>
+    <sub-class-of type="application/xml"/>
+    <generic-icon name="audio-x-generic"/>
+    <glob pattern="*.musicxml"/>
+  </mime-type>
+  <mime-type type="application/vnd.recordare.musicxml">
+    <comment>Compressed MusicXML score</comment>
+    <comment xml:lang="zh_CN">压缩的 MusicXML 乐谱</comment>
+    <sub-class-of type="application/zip"/>
+    <generic-icon name="audio-x-generic"/>
+    <glob pattern="*.mxl"/>
+  </mime-type>
+</mime-info>

@@ -8,7 +8,6 @@
 #include <imgui.h>
 #include <imgui_impl_opengl3.h>
 #include <imgui_impl_sdl2.h>
-#include <zlib.h>
 
 #include <algorithm>
 #include <chrono>
@@ -19,6 +18,7 @@
 
 #include "audio/PulseBridge.h"
 #include "common/I18n.h"
+#include "common/Png.h"
 #include "ui/App.h"
 #include "ui/Settings.h"
 #include "ui/Theme.h"
@@ -27,6 +27,12 @@
 #define GL_FRAMEBUFFER 0x8D40
 #define GL_COLOR_ATTACHMENT0 0x8CE0
 #endif
+
+namespace gs {
+// packaging/icons/hicolor/128x128/apps/guitarstudio.png, compiled in by CMake (gs_app_icon.cpp)
+extern const unsigned char kAppIconPng[];
+extern const unsigned kAppIconPngSize;
+}  // namespace gs
 
 namespace {
 
@@ -70,50 +76,15 @@ void usage() {
         "  --strict              abort on ImGui usage errors (for development)\n");
 }
 
-// Minimal PNG writer (RGBA8)
-bool writePng(const std::string& path, int w, int h, const std::vector<unsigned char>& rgba) {
-    std::vector<unsigned char> raw;
-    raw.reserve((size_t)(w * 4 + 1) * h);
-    for (int y = 0; y < h; ++y) {
-        raw.push_back(0);
-        const unsigned char* row = &rgba[(size_t)(h - 1 - y) * w * 4];  // OpenGL rows are bottom-up
-        raw.insert(raw.end(), row, row + w * 4);
-    }
-    uLongf clen = compressBound(raw.size());
-    std::vector<unsigned char> comp(clen);
-    if (compress2(comp.data(), &clen, raw.data(), raw.size(), 6) != Z_OK) return false;
-    comp.resize(clen);
-    FILE* f = std::fopen(path.c_str(), "wb");
-    if (!f) return false;
-    auto be32 = [](unsigned v, unsigned char* b) {
-        b[0] = (unsigned char)(v >> 24);
-        b[1] = (unsigned char)(v >> 16);
-        b[2] = (unsigned char)(v >> 8);
-        b[3] = (unsigned char)v;
-    };
-    auto chunk = [&](const char* type, const unsigned char* data, unsigned len) {
-        unsigned char b[4];
-        be32(len, b);
-        std::fwrite(b, 1, 4, f);
-        std::fwrite(type, 1, 4, f);
-        if (len) std::fwrite(data, 1, len, f);
-        uLong crc = crc32(0, (const Bytef*)type, 4);
-        if (len) crc = crc32(crc, data, len);
-        be32((unsigned)crc, b);
-        std::fwrite(b, 1, 4, f);
-    };
-    static const unsigned char sig[8] = {137, 80, 78, 71, 13, 10, 26, 10};
-    std::fwrite(sig, 1, 8, f);
-    unsigned char ihdr[13];
-    be32((unsigned)w, ihdr);
-    be32((unsigned)h, ihdr + 4);
-    ihdr[8] = 8;   // bit depth
-    ihdr[9] = 6;   // RGBA
-    ihdr[10] = ihdr[11] = ihdr[12] = 0;
-    chunk("IHDR", ihdr, 13);
-    chunk("IDAT", comp.data(), (unsigned)comp.size());
-    chunk("IEND", nullptr, 0);
-    std::fclose(f);
+// Window icon for the title bar and the task switcher (the menu and desktop use the installed icon files)
+bool setWindowIcon(SDL_Window* window) {
+    int w = 0, h = 0;
+    std::vector<unsigned char> rgba;
+    if (!gs::decodePng(gs::kAppIconPng, gs::kAppIconPngSize, w, h, rgba)) return false;
+    SDL_Surface* icon = SDL_CreateRGBSurfaceWithFormatFrom(rgba.data(), w, h, 32, w * 4, SDL_PIXELFORMAT_RGBA32);
+    if (!icon) return false;
+    SDL_SetWindowIcon(window, icon);
+    SDL_FreeSurface(icon);
     return true;
 }
 
@@ -199,10 +170,12 @@ int main(int argc, char** argv) {
     // Normal mode allows only one instance (it owns the sound card); no-sound-card (test) mode is not
     // restricted and never touches PulseAudio
     if (!opt.simulate && !acquireInstanceLock()) {
-        const char* msg = gs::tr("Guitar Studio is already running.\nIt needs exclusive access to the sound card, so only one copy can be open at a time.");
-        std::fprintf(stderr, "%s\n", msg);
+        std::string msg = gs::tr("Guitar Studio is already running.\nIt needs exclusive access to the sound card, so only one copy can be open at a time.");
+        if (!opt.song.empty())  // e.g. "Open with" in the file manager
+            msg += std::string("\n\n") + gs::tr("To open this song, drag the file into the open Guitar Studio window.");
+        std::fprintf(stderr, "%s\n", msg.c_str());
         if (shot.empty() && SDL_Init(SDL_INIT_VIDEO) == 0) {
-            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Guitar Studio", msg, nullptr);
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Guitar Studio", msg.c_str(), nullptr);
             SDL_Quit();
         }
         return 0;
@@ -245,6 +218,7 @@ int main(int argc, char** argv) {
         std::fprintf(stderr, "Cannot create window: %s\n", SDL_GetError());
         return 1;
     }
+    if (!setWindowIcon(window)) std::fprintf(stderr, "Cannot set the window icon\n");
     SDL_GLContext gl = SDL_GL_CreateContext(window);
     SDL_GL_MakeCurrent(window, gl);
     SDL_GL_SetSwapInterval(1);
@@ -317,7 +291,7 @@ int main(int argc, char** argv) {
                 std::vector<unsigned char> px((size_t)winW * winH * 4);
                 glPixelStorei(GL_PACK_ALIGNMENT, 1);
                 glReadPixels(0, 0, winW, winH, GL_RGBA, GL_UNSIGNED_BYTE, px.data());
-                bool ok = writePng(shot, winW, winH, px);
+                bool ok = gs::writePng(shot, winW, winH, px.data(), true);
                 std::printf(ok ? "Screenshot saved: %s\n" : "Failed to save screenshot: %s\n", shot.c_str());
                 running = false;
             }

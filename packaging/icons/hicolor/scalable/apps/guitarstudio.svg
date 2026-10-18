@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="256" height="256" viewBox="0 0 256 256">
+  <!-- Guitar Studio app icon: a pick with a sound wave over six strings. Keep to SVG Tiny features (no filters,
+       masks or clip paths) so that KDE (QtSvg) draws it the same. PNG sizes: scripts/render_icons.sh -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="8" x2="0" y2="248" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#343a44"/>
+      <stop offset="1" stop-color="#1b1e23"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="128" cy="131" r="118" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ff9a3c" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#ff9a3c" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="strings" x1="0" y1="8" x2="0" y2="248" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#d9dee6" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#d9dee6" stop-opacity="0.25"/>
+    </linearGradient>
+    <linearGradient id="pick-fill" x1="70" y1="49.84" x2="186" y2="212.17" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffcf6b"/>
+      <stop offset="0.55" stop-color="#f7952e"/>
+      <stop offset="1" stop-color="#e2581b"/>
+    </linearGradient>
+    <linearGradient id="gloss" x1="0" y1="49.84" x2="0" y2="131" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <path id="pick" d="M128 49.84C168.32 49.84 196.88 59.92 196.88 90.16C196.88 128.79 156.56 185.91 138.08 207.75C133.04 213.63 122.96 213.63 117.92 207.75C99.44 185.91 59.12 128.79 59.12 90.16C59.12 59.92 87.68 49.84 128 49.84Z"/>
+  </defs>
+
+  <!-- background -->
+  <rect x="8" y="8" width="240" height="240" rx="54" fill="url(#bg)"/>
+  <rect x="9" y="9" width="238" height="238" rx="53" fill="none" stroke="#ffffff" stroke-opacity="0.07" stroke-width="2"/>
+  <rect x="8" y="8" width="240" height="240" rx="54" fill="url(#glow)"/>
+
+  <!-- strings, low E on the left -->
+  <g stroke="url(#strings)">
+    <line x1="63" y1="8" x2="63" y2="248" stroke-width="4.2"/>
+    <line x1="89" y1="8" x2="89" y2="248" stroke-width="3.6"/>
+    <line x1="115" y1="8" x2="115" y2="248" stroke-width="3"/>
+    <line x1="141" y1="8" x2="141" y2="248" stroke-width="2.5"/>
+    <line x1="167" y1="8" x2="167" y2="248" stroke-width="2.1"/>
+    <line x1="193" y1="8" x2="193" y2="248" stroke-width="1.8"/>
+  </g>
+
+  <!-- soft shadow: widening, fading outlines under an offset copy of the pick -->
+  <g transform="translate(0 5)" fill="none" stroke="#000000" stroke-linejoin="round">
+    <use xlink:href="#pick" stroke-opacity="0.05" stroke-width="14"/>
+    <use xlink:href="#pick" stroke-opacity="0.08" stroke-width="8"/>
+    <use xlink:href="#pick" stroke-opacity="0.12" stroke-width="3"/>
+    <use xlink:href="#pick" fill="#000000" fill-opacity="0.3" stroke="none"/>
+  </g>
+
+  <!-- pick -->
+  <use xlink:href="#pick" fill="url(#pick-fill)"/>
+  <use xlink:href="#pick" fill="url(#gloss)"/>
+
+  <!-- sound wave -->
+  <path d="M80.2 114.8L81.7 114.7L83.1 114.3L84.6 113.5L86.1 112.6L87.6 111.5L89.1 110.4L90.6 109.5L92.1 108.9L93.6 108.9L95.1 109.5L96.6 110.8L98.1 112.8L99.6 115.3L101.1 118.3L102.6 121.5L104.1 124.7L105.6 127.5L107.1 129.8L108.6 131.3L110.1 131.7L111.5 131.1L113 129.2L114.5 126.3L116 122.4L117.5 117.8L119 112.7L120.5 107.6L122 102.8L123.5 98.7L125 95.5L126.5 93.5L128 92.8L129.5 93.5L131 95.5L132.5 98.7L134 102.8L135.5 107.6L137 112.7L138.5 117.8L140 122.4L141.5 126.3L142.9 129.2L144.4 131.1L145.9 131.7L147.4 131.3L148.9 129.8L150.4 127.5L151.9 124.7L153.4 121.5L154.9 118.3L156.4 115.3L157.9 112.8L159.4 110.8L160.9 109.5L162.4 108.9L163.9 108.9L165.4 109.5L166.9 110.4L168.4 111.5L169.9 112.6L171.4 113.5L172.9 114.3L174.3 114.7L175.8 114.8" fill="none" stroke="#20242a" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

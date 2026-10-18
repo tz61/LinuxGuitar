@@ -1,3 +1,5 @@
+<img src="packaging/icons/hicolor/128x128/apps/guitarstudio.png" width="96" align="right" alt="">
+
 # Guitar Studio — 低延迟吉他效果器 + 练琴
 
 [English](README.md) | **中文**
@@ -30,7 +32,7 @@
 - 电脑声卡的输入阻抗比吉他拾音器需要的 (≈1 MΩ) 低很多, 声音会偏暗、信号偏小, 这是正常的.
   以后想要更好的音质, 买一个便宜的 USB 吉他声卡 (带 Hi-Z 乐器输入), 在 设置 → 声卡 里选它即可.
 
-## 2. 编译与运行
+## 2. 安装与运行
 
 依赖 (这台电脑上都已经装好):
 
@@ -39,15 +41,28 @@ sudo apt install build-essential cmake git libasound2-dev libpulse-dev libdbus-1
 ```
 
 ```bash
-./run.sh                       # 第一次会自动下载 Dear ImGui 并编译, 然后启动
-./run.sh 我的谱子.gp5           # 直接导入一个谱子并开始练习
-./scripts/install_desktop.sh   # 可选: 在应用菜单里添加 "Guitar Studio" 图标
+./install.sh                   # 编译并安装到当前用户 (~/.local, 不需要 sudo),
+                               # 同时在应用菜单 (多媒体) 和桌面上放 Guitar Studio 图标
+./install.sh --uninstall       # 卸载 (设置、导入的谱子和成绩都会保留)
 ```
 
-手动编译: `scripts/fetch_deps.sh && cmake -S . -B build && cmake --build build -j` → `build/guitarstudio`
+装好以后从菜单或桌面图标启动, 或者在终端里运行 `guitarstudio` (`guitarstudio 我的谱子.gp5` 直接导入谱子并开始练习).
+在文件管理器里也可以用它打开谱子文件 (.gtab、.gp3/.gp4/.gp5/.gpx、.musicxml/.mxl、.mid). 改了代码或更新以后, 再运行一次 `./install.sh` 就行.
+其他选项: `--system` (给所有用户装到 /usr/local, 会要 sudo 密码)、`--prefix 目录`、`--no-desktop-icon`.
+程序是按这台电脑的 CPU 优化编译的, 换电脑时请在那台电脑上重新编译安装, 不要直接拷贝.
+
+不安装, 直接从源码目录运行 (开发用):
+
+```bash
+./run.sh                       # 第一次会自动下载 Dear ImGui 并编译, 然后启动 build/guitarstudio
+./run.sh 我的谱子.gp5           # 直接导入一个谱子并开始练习
+```
+
+手动编译: `scripts/fetch_deps.sh && cmake -S . -B build && cmake --build build -j` → `build/guitarstudio`;
+`cmake --install build --prefix 目录` 安装 (install.sh 就是这么做的).
 
 命令行选项: `--simulate` (无声卡模式), `--demo` (演示: 模拟一个玩家自动弹), `--device hw:X,Y`,
-`--tab 0..4`, `--play`, `--preset 名称`, `--lang en|zh` (界面语言), `--scale 1.5` (界面大小). 运行 `build/guitarstudio --help` 查看全部.
+`--tab 0..4`, `--play`, `--preset 名称`, `--lang en|zh` (界面语言), `--scale 1.5` (界面大小). 运行 `guitarstudio --help` 查看全部.
 
 ## 3. 新手三步
 
@@ -74,7 +89,7 @@ sudo apt install build-essential cmake git libasound2-dev libpulse-dev libdbus-1
 
 ### 导入谱子
 
-- **拖进窗口** / 练琴页 "导入谱子文件" (Ctrl+O) / 命令行参数. 导入后自动开始练习 (可在设置里关闭).
+- **拖进窗口** / 练琴页 "导入谱子文件" (Ctrl+O) / 安装后在文件管理器里用它打开 / 命令行参数. 导入后自动开始练习 (可在设置里关闭).
 - 支持: Guitar Pro `.gp3 .gp4 .gp5 .gpx .gp`, MusicXML `.xml .musicxml .mxl`, MIDI `.mid`, 文字六线谱 `.txt .tab`, 本软件的 `.gtab`.
 - 在网页上复制一段文字六线谱 (`e|---0---3---|` 那种), 点 "粘贴谱子" (Ctrl+V) 就能练.
 - 多音轨的文件可以在标题旁边切换音轨. 导入的谱子保存在 `~/.local/share/guitarstudio/songs/`.
@@ -163,8 +178,9 @@ src/analysis/  音高 (McLeod)、起音 (对数谱通量)、音级、谐波显�
 src/practice/  走带 (采样级精确, 等待模式/循环/变速), 评分器, 拨弦合成器 (示范音), 节拍器
 src/song/      谱子模型与导入 (gtab / ASCII / MusicXML / MIDI / Guitar Pro 3-7), 自动把位, 和弦库
 src/ui/        Dear ImGui 界面
+packaging/     安装用的桌面启动器、程序图标 (SVG; 各尺寸 PNG 用 scripts/render_icons.sh 生成) 和谱子文件类型
 src/common/    中英文界面 (i18n): 源码里是英文, 各模块的 I18nZh.cpp 是中文翻译表
-tests/         离线测试 (不需要声卡): test_fx test_song test_analysis test_practice; test_engine 用真实声卡
+tests/         离线测试 (不需要声卡): test_common test_fx test_song test_analysis test_practice; test_engine 用真实声卡
 ```
 
 `cmake --build build -j && build/test_practice` —— 用合成的 "模拟玩家" 走完整个练琴流程 (节奏误差/错音/漏音/和弦/等待模式/循环).

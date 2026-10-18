@@ -15,10 +15,6 @@
 #include "ui/Theme.h"
 #include "ui/Widgets.h"
 
-#ifndef GS_ASSET_DIR
-#define GS_ASSET_DIR "assets"
-#endif
-
 namespace gs {
 
 using namespace ui;
@@ -44,7 +40,7 @@ bool App::init() {
     if (!loadFonts()) toast(tr("No CJK font (Noto Sans CJK) found; Chinese text may show as boxes"), true);
 
     library_.loadScores(dataDir() + "/scores.tsv");
-    library_.scan(std::string(GS_ASSET_DIR) + "/songs", userSongDir());
+    library_.scan(builtinSongDir(), userSongDir());
     if (!opt_.simulate) PulseBridge::cleanupStale();  // test instances (no sound card) never touch PulseAudio
     analyzer_.setFrameCallback([this](const AnalysisFrame& f) { practice_.onAnalysisFrame(f); });
 
@@ -68,8 +64,16 @@ bool App::init() {
 
     startAudio();
     tab_ = (Tab)std::clamp(opt_.tab >= 0 ? opt_.tab : settings_.tab, 0, (int)Tab::Count - 1);
+    // A built-in lesson remembered from another location (source tree vs. installed copy) opens from this one
+    std::string last = settings_.lastSong;
+    if (!last.empty() && library_.find(last) < 0)
+        for (auto& e : library_.entries())
+            if (e.builtin && baseName(e.path) == baseName(last)) {
+                last = e.path;
+                break;
+            }
     if (!opt_.song.empty()) importSong(opt_.song);
-    else if (!settings_.lastSong.empty() && fileExists(settings_.lastSong)) openSong(settings_.lastSong, false);
+    else if (!last.empty() && fileExists(last)) openSong(last, false);
     else if (!library_.entries().empty()) openSong(library_.entries()[0].path, false);
     if (opt_.autoplay) autoPlayAt_ = ImGui::GetTime() + 0.8;
     welcomeShown_ = !firstRun || opt_.simulate;

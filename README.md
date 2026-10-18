@@ -1,3 +1,5 @@
+<img src="packaging/icons/hicolor/128x128/apps/guitarstudio.png" width="96" align="right" alt="">
+
 # Guitar Studio — low-latency guitar effects + practice
 
 **English** | [中文](README.zh-CN.md)
@@ -35,7 +37,7 @@ speakers / headphones ── green output (or the front-panel headphone jack)
   the signal smaller. That's normal. For better sound later, get an inexpensive USB guitar interface (with a Hi-Z instrument
   input) and select it under Settings → Sound card.
 
-## 2. Building and running
+## 2. Installing and running
 
 Dependencies (already installed on this PC):
 
@@ -44,16 +46,30 @@ sudo apt install build-essential cmake git libasound2-dev libpulse-dev libdbus-1
 ```
 
 ```bash
-./run.sh                       # first run downloads Dear ImGui and builds, then starts the app
-./run.sh my_song.gp5           # import a song and start practicing right away
-./scripts/install_desktop.sh   # optional: add a "Guitar Studio" launcher to the application menu
+./install.sh                   # build and install for your user (~/.local, no sudo needed), with a launcher in the
+                               # application menu (Multimedia) and an icon on the desktop
+./install.sh --uninstall       # remove it again (settings, imported songs and scores are kept)
 ```
 
-Manual build: `scripts/fetch_deps.sh && cmake -S . -B build && cmake --build build -j` → `build/guitarstudio`
+After installing, start Guitar Studio from the menu or the desktop icon, or run `guitarstudio` in a terminal
+(`guitarstudio my_song.gp5` imports a song and starts practicing). Song files (.gtab, .gp3/.gp4/.gp5/.gpx, .musicxml/.mxl,
+.mid) can also be opened with it from the file manager. After changing the code or pulling updates, run `./install.sh` again.
+Other options: `--system` (for all users, into /usr/local; asks for sudo), `--prefix DIR`, `--no-desktop-icon`.
+The program is optimized for this computer's CPU, so build it on each computer rather than copying it.
+
+Running from the source tree without installing (for development):
+
+```bash
+./run.sh                       # first run downloads Dear ImGui and builds, then starts build/guitarstudio
+./run.sh my_song.gp5           # import a song and start practicing right away
+```
+
+Manual build: `scripts/fetch_deps.sh && cmake -S . -B build && cmake --build build -j` → `build/guitarstudio`;
+`cmake --install build --prefix DIR` installs it (install.sh does that).
 
 Command-line options: `--simulate` (no-sound-card mode), `--demo` (a simulated player plays the song), `--device hw:X,Y`,
 `--tab 0..4`, `--play`, `--preset NAME`, `--lang en|zh` (UI language), `--scale 1.5` (UI size).
-Run `build/guitarstudio --help` for the full list.
+Run `guitarstudio --help` for the full list.
 
 ## 3. Three steps for beginners
 
@@ -84,8 +100,8 @@ Run `build/guitarstudio --help` for the full list.
 
 ### Importing songs
 
-- **Drop a file onto the window** / Practice page "Import song file" (Ctrl+O) / command-line argument. Practice starts
-  automatically after importing (can be turned off in Settings).
+- **Drop a file onto the window** / Practice page "Import song file" (Ctrl+O) / open it from the file manager (once installed)
+  / command-line argument. Practice starts automatically after importing (can be turned off in Settings).
 - Supported: Guitar Pro `.gp3 .gp4 .gp5 .gpx .gp`, MusicXML `.xml .musicxml .mxl`, MIDI `.mid`, text tabs `.txt .tab`, and this
   app's `.gtab`.
 - Copy a text tab from a web page (the `e|---0---3---|` kind) and click "Paste tab" (Ctrl+V) to practice it.
@@ -188,8 +204,10 @@ src/analysis/  pitch (McLeod), onsets (log spectral flux), chroma, harmonic sali
 src/practice/  transport (sample-accurate, wait mode / loop / speed), scorer, plucked-string synth (reference), metronome
 src/song/      song model and import (gtab / ASCII / MusicXML / MIDI / Guitar Pro 3-7), automatic fingering, chord library
 src/ui/        Dear ImGui user interface
+packaging/     desktop entry, app icon (SVG; PNG sizes from scripts/render_icons.sh) and song file types for install.sh
 src/common/    shared helpers, including i18n: source strings are English, each module's I18nZh.cpp holds the Chinese catalog
-tests/         offline tests (no sound card needed): test_fx test_song test_analysis test_practice; test_engine uses the real card
+tests/         offline tests (no sound card needed): test_common test_fx test_song test_analysis test_practice;
+               test_engine uses the real card
 ```
 
 `cmake --build build -j && build/test_practice` runs the whole practice flow with a synthesized "simulated player" (timing

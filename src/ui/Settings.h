@@ -62,6 +62,7 @@ std::string homeDir();
 std::string configDir();      // ~/.config/guitarstudio
 std::string dataDir();        // ~/.local/share/guitarstudio
 std::string userSongDir();    // ~/.local/share/guitarstudio/songs
+std::string builtinSongDir(); // built-in lessons: <prefix>/share/guitarstudio/lessons once installed, else assets/songs
 std::string userPresetDir();  // ~/.config/guitarstudio/presets
 bool ensureDir(const std::string& path);
 bool fileExists(const std::string& path);

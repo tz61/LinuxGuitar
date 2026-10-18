@@ -11,6 +11,13 @@
 #include <map>
 #include <sstream>
 
+#ifndef GS_ASSET_DIR
+#define GS_ASSET_DIR "assets"
+#endif
+#ifndef GS_LESSON_DIR_REL
+#define GS_LESSON_DIR_REL "../share/guitarstudio/lessons"
+#endif
+
 namespace gs {
 
 namespace {
@@ -98,6 +105,19 @@ std::string configDir() { return xdg("XDG_CONFIG_HOME", "/.config") + "/guitarst
 std::string dataDir() { return xdg("XDG_DATA_HOME", "/.local/share") + "/guitarstudio"; }
 std::string userSongDir() { return dataDir() + "/songs"; }
 std::string userPresetDir() { return configDir() + "/presets"; }
+
+std::string builtinSongDir() {
+    // An installed copy is found relative to the executable, whatever the install prefix (~/.local, /usr/local, ...)
+    char exe[4096], real[4096];
+    const ssize_t n = readlink("/proc/self/exe", exe, sizeof exe - 1);
+    if (n > 0) {
+        exe[n] = 0;
+        std::string dir(exe);
+        dir = dir.substr(0, dir.rfind('/') + 1) + GS_LESSON_DIR_REL;
+        if (realpath(dir.c_str(), real)) return real;
+    }
+    return std::string(GS_ASSET_DIR) + "/songs";  // run from the build directory: straight from the source tree
+}
 
 bool ensureDir(const std::string& path) {
     if (path.empty()) return false;
