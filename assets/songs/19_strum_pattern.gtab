@@ -1,0 +1,18 @@
+# Built-in lesson. Text fields are bilingual "English|Chinese" (format: src/song/Song.h).
+title: Lesson 19: Strumming Pattern (D DU UDU)|第19课 扫弦节奏型 (下 下上 上下上)
+artist: Exercise|练习
+bpm: 70
+time: 4/4
+level: 2
+desc: The most common folk strumming pattern: down - down-up - up-down-up (v = down strum, ^ = up strum). Practice it on a G chord.|最常用的民谣扫弦节奏: 下 - 下上 - 上下上 (v = 下扫, ^ = 上扫). 用 G 和弦练习.
+desc: Tip: keep your strumming hand swinging up and down like a pendulum and just swing past the strings on the silent strokes; up strums only need strings 1-3.|小贴士: 右手像钟摆一样一直上下摆动, 不弹的那一下 "空挥" 不碰弦; 上扫只扫到 1~3 弦即可.
+---
+@Warm-up:_quarter-note_down_strums|热身:_四分音符下扫
+[G]/4v [G]v [G]v [G]v | [G]/4v [G]v [G]v [G]v |
+@Eighth-note_down-up_strums|八分音符上下扫
+[G]/8v [G]^ [G]v [G]^ [G]v [G]^ [G]v [G]^ | [G]/8v [G]^ [G]v [G]^ [G]v [G]^ [G]v [G]^ |
+@Pattern:_D_DU_UDU|节奏型:_下_下上_上下上
+[G]/4v [G]/8v [G]^ r/8 [G]/8^ [G]v [G]^ | [G]/4v [G]/8v [G]^ r/8 [G]/8^ [G]v [G]^ |
+[G]/4v [G]/8v [G]^ r/8 [G]/8^ [G]v [G]^ | [G]/4v [G]/8v [G]^ r/8 [G]/8^ [G]v [G]^ |
+@Ending|结束
+[G]/1v |

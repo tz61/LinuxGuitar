@@ -1,0 +1,13 @@
+# Built-in lesson. Text fields are bilingual "English|Chinese" (format: src/song/Song.h).
+title: Frère Jacques (Two Tigers)|两只老虎
+artist: Traditional|传统儿歌
+bpm: 90
+time: 4/4
+level: 1
+desc: First position in G. Bars 5 and 6 have eighth notes (two notes per beat) - practice slowly first, then speed up.|第一把位 G 调. 第 5、6 小节有八分音符 (一拍弹两下), 先慢速练熟再加速.
+desc: Tip: open string 4 (low D) appears in the last two bars; don't hit string 3 when you pick it.|小贴士: 4弦空弦 (低音 D) 出现在最后两小节, 拨弦时别碰到 3 弦.
+---
+"Are|两" 3.0/4 "you|只" 3.2 "sleep-|老" 2.0 "ing|虎" 3.0 | "are|两" 3.0/4 "you|只" 3.2 "sleep-|老" 2.0 "ing|虎" 3.0 |
+"Bro-|跑" 2.0/4 "ther|得" 2.1 "John|快" 2.3/2 | "Bro-|跑" 2.0/4 "ther|得" 2.1 "John|快" 2.3/2 |
+"Morn-|一" 2.3/8 "ing|只" 1.0 "bells|没" 2.3 "are|有" 2.1 "ring-|眼" 2.0/4 "ing|睛" 3.0 | "morn-|一" 2.3/8 "ing|只" 1.0 "bells|没" 2.3 "are|有" 2.1 "ring-|尾" 2.0/4 "ing|巴" 3.0 |
+"Ding|真" 3.0/4 "dang|奇" 4.0 "dong|怪" 3.0/2 | "ding|真" 3.0/4 "dang|奇" 4.0 "dong|怪" 3.0/2 |

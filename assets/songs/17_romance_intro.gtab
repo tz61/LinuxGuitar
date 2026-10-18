@@ -1,0 +1,18 @@
+# Built-in lesson. Text fields are bilingual "English|Chinese" (format: src/song/Song.h).
+title: Romance - Intro (Simplified)|爱的罗曼史 前奏 (简化版)
+artist: Spanish Folk Song (Romance Anónimo)|西班牙民谣 (Romance Anónimo)
+bpm: 60
+time: 3/4
+level: 4
+desc: The first 8 bars of the classical guitar favorite. Three notes per beat (triplets): melody on string 1 + open string 2 + open string 3, with a bass note on the first beat of each bar.|古典吉他名曲的前 8 小节. 每拍三个音 (三连音): 1弦旋律 + 2弦空弦 + 3弦空弦, 每小节第一拍同时弹低音.
+desc: Tip: right hand a-m-i (ring finger on string 1, middle on string 2, index on string 3) and the thumb on the bass; play the melody a little louder than the accompaniment.|小贴士: 右手用 a-m-i 指法 (无名指弹 1 弦, 中指 2 弦, 食指 3 弦), 大拇指弹低音; 旋律音要比伴奏音稍响.
+---
+1.7+6.0/8t 2.0 3.0 1.7 2.0 3.0 1.7 2.0 3.0 |
+1.7+6.0/8t 2.0 3.0 1.5 2.0 3.0 1.3 2.0 3.0 |
+1.3+6.0/8t 2.0 3.0 1.2 2.0 3.0 1.0 2.0 3.0 |
+1.0+6.0/8t 2.0 3.0 1.3 2.0 3.0 1.7 2.0 3.0 |
+1.12+6.0/8t 2.0 3.0 1.12 2.0 3.0 1.12 2.0 3.0 |
+1.12+6.0/8t 2.0 3.0 1.10 2.0 3.0 1.8 2.0 3.0 |
+1.8+5.0/8t 2.0 3.0 1.7 2.0 3.0 1.5 2.0 3.0 |
+1.5+5.0/8t 2.0 3.0 1.7 2.0 3.0 1.8 2.0 3.0 |
+1.7+2.0+3.0+6.0/2. |

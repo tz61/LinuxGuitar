@@ -1,0 +1,18 @@
+# Built-in lesson. Text fields are bilingual "English|Chinese" (format: src/song/Song.h).
+title: Twinkle Twinkle Little Star|小星星
+artist: Traditional|传统儿歌
+bpm: 80
+time: 4/4
+level: 1
+desc: Your first complete song! Only strings 1, 2 and 3: G = open string 3, A = string 3 fret 2, B = open string 2, C = string 2 fret 1, D = string 2 fret 3, E = open string 1.|第一首完整的歌! 只用 1、2、3 弦: G=3弦空弦 A=3弦2品 B=2弦空弦 C=2弦1品 D=2弦3品 E=1弦空弦.
+desc: Tip: the last note of each phrase is a half note - let it ring for two full beats before the next phrase.|小贴士: 每句最后一个音是二分音符, 要让它响满两拍再弹下一句.
+---
+@Phrase_1|第一句
+"Twin-|一" 3.0/4 "kle|闪" 3.0 "twin-|一" 2.3 "kle|闪" 2.3 | "lit-|亮" 1.0/4 "tle|晶" 1.0 "star|晶" 2.3/2 |
+"how|满" 2.1/4 "I|天" 2.1 "won-|都" 2.0 "der|是" 2.0 | "what|小" 3.2/4 "you|星" 3.2 "are|星" 3.0/2 |
+@Phrase_2|第二句
+"Up|挂" 2.3/4 "a-|在" 2.3 "bove|天" 2.1 "the|上" 2.1 | "world|放" 2.0/4 "so|光" 2.0 "high|明" 3.2/2 |
+"like|好" 2.3/4 "a|像" 2.3 "dia-|许" 2.1 "mond|多" 2.1 | "in|小" 2.0/4 "the|眼" 2.0 "sky|睛" 3.2/2 |
+@Phrase_3|第三句
+"Twin-|一" 3.0/4 "kle|闪" 3.0 "twin-|一" 2.3 "kle|闪" 2.3 | "lit-|亮" 1.0/4 "tle|晶" 1.0 "star|晶" 2.3/2 |
+"how|满" 2.1/4 "I|天" 2.1 "won-|都" 2.0 "der|是" 2.0 | "what|小" 3.2/4 "you|星" 3.2 "are|星" 3.0/2 |

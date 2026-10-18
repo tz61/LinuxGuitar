@@ -1,0 +1,16 @@
+# Built-in lesson. Text fields are bilingual "English|Chinese" (format: src/song/Song.h).
+title: Lesson 5: E Minor Pentatonic|第5课 E小调五声音阶
+artist: Exercise|练习
+bpm: 70
+time: 4/4
+level: 2
+desc: The most used scale in rock and blues; in first position it only needs open strings, fret 2 and fret 3. Learn it and you can start improvising!|摇滚和布鲁斯最常用的音阶, 第一把位只用空弦、2品和3品. 学会它就可以开始即兴了!
+desc: Tip: middle finger on fret 2, ring finger on fret 3; on the way down, don't let the strings you already played keep ringing.|小贴士: 2 品用中指, 3 品用无名指; 下行时注意不要让弹过的弦一直响.
+---
+@Ascending|上行
+6.0/8 6.3 5.0 5.2 4.0 4.2 3.0 3.2 | 2.0/8 2.3 1.0 1.3 1.0/2 |
+@Descending|下行
+1.3/8 1.0 2.3 2.0 3.2 3.0 4.2 4.0 | 5.2/8 5.0 6.3 6.0 6.0/2 |
+@Short_lick|小乐句
+1.0/8 1.3 1.0 2.3 2.0/4 2.3 | 1.0/2 r/2 |
+3.2/8 2.0 2.3 2.0 3.2/4 3.0 | 4.2/2 r/2 |

@@ -1,0 +1,27 @@
+# Built-in lesson. Text fields are bilingual "English|Chinese" (format: src/song/Song.h).
+title: 12-Bar Blues (Shuffle in A)|12小节布鲁斯 (A调 Shuffle)
+artist: Exercise|练习
+bpm: 90
+time: 4/4
+level: 3
+desc: The classic 12-bar blues: A (4 bars) - D (2) - A (2) - E - D - A - E, with a long-short swing feel on every beat (shuffle).|经典 12 小节布鲁斯: A(4小节) - D(2) - A(2) - E - D - A - E. 每拍 "长-短" 的摇摆节奏 (shuffle).
+desc: Tip: for A, alternate open string 5 with string 4 fret 2 / fret 4; rest the palm of your picking hand lightly on the bridge to mute (m) for a chunkier sound.|小贴士: A 用 5弦空弦 + 4弦2品/4品交替; 右手掌轻放在琴桥上做闷音 (m), 声音更有颗粒感.
+---
+@A
+5.0+4.2/4tm 5.0+4.2/8tm 5.0+4.4/4tm 5.0+4.4/8tm 5.0+4.2/4tm 5.0+4.2/8tm 5.0+4.4/4tm 5.0+4.4/8tm |
+5.0+4.2/4tm 5.0+4.2/8tm 5.0+4.4/4tm 5.0+4.4/8tm 5.0+4.2/4tm 5.0+4.2/8tm 5.0+4.4/4tm 5.0+4.4/8tm |
+5.0+4.2/4tm 5.0+4.2/8tm 5.0+4.4/4tm 5.0+4.4/8tm 5.0+4.2/4tm 5.0+4.2/8tm 5.0+4.4/4tm 5.0+4.4/8tm |
+5.0+4.2/4tm 5.0+4.2/8tm 5.0+4.4/4tm 5.0+4.4/8tm 5.0+4.2/4tm 5.0+4.2/8tm 5.0+4.4/4tm 5.0+4.4/8tm |
+@D
+4.0+3.2/4tm 4.0+3.2/8tm 4.0+3.4/4tm 4.0+3.4/8tm 4.0+3.2/4tm 4.0+3.2/8tm 4.0+3.4/4tm 4.0+3.4/8tm |
+4.0+3.2/4tm 4.0+3.2/8tm 4.0+3.4/4tm 4.0+3.4/8tm 4.0+3.2/4tm 4.0+3.2/8tm 4.0+3.4/4tm 4.0+3.4/8tm |
+@A
+5.0+4.2/4tm 5.0+4.2/8tm 5.0+4.4/4tm 5.0+4.4/8tm 5.0+4.2/4tm 5.0+4.2/8tm 5.0+4.4/4tm 5.0+4.4/8tm |
+5.0+4.2/4tm 5.0+4.2/8tm 5.0+4.4/4tm 5.0+4.4/8tm 5.0+4.2/4tm 5.0+4.2/8tm 5.0+4.4/4tm 5.0+4.4/8tm |
+@E_-_D_-_A_-_E
+6.0+5.2/4tm 6.0+5.2/8tm 6.0+5.4/4tm 6.0+5.4/8tm 6.0+5.2/4tm 6.0+5.2/8tm 6.0+5.4/4tm 6.0+5.4/8tm |
+4.0+3.2/4tm 4.0+3.2/8tm 4.0+3.4/4tm 4.0+3.4/8tm 4.0+3.2/4tm 4.0+3.2/8tm 4.0+3.4/4tm 4.0+3.4/8tm |
+5.0+4.2/4tm 5.0+4.2/8tm 5.0+4.4/4tm 5.0+4.4/8tm 5.0+4.2/4tm 5.0+4.2/8tm 5.0+4.4/4tm 5.0+4.4/8tm |
+6.0+5.2/4tm 6.0+5.2/8tm 6.0+5.4/4tm 6.0+5.4/8tm 6.0+5.2/4tm 6.0+5.2/8tm 6.0+5.4/4tm 6.0+5.4/8tm |
+@Ending|结尾
+5.0+4.2/1 |

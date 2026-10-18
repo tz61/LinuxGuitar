@@ -1,0 +1,15 @@
+# Built-in lesson. Text fields are bilingual "English|Chinese" (format: src/song/Song.h).
+title: Jingle Bells (Chorus)|铃儿响叮当 (副歌)
+artist: Traditional|传统
+bpm: 110
+time: 4/4
+level: 2
+desc: The chorus of the cheerful Christmas song, key of G, first position. Bar 3 has a dotted rhythm (one and a half beats + half a beat).|欢快的圣诞歌副歌部分, G 调第一把位. 第三小节有附点节奏 (一拍半 + 半拍).
+desc: Tip: it is fairly fast - practice at 60% first; open string 2 (B) is used the most, so be careful not to hit string 1.|小贴士: 速度较快, 可以先调到 60% 练熟; 2弦空弦 (B) 用得最多, 注意别扫到 1 弦.
+---
+@First_time|第一遍
+"Jin-|叮" 2.0/4 "gle|叮" 2.0 "bells|当" 2.0/2 | "jin-|叮" 2.0/4 "gle|叮" 2.0 "bells|当" 2.0/2 | "jin-|铃" 2.0/4 "gle|儿" 2.3 "all|响" 3.0/4. "the|叮" 3.2/8 | "way|当" 2.0/1 |
+2.1/4 2.1 2.1/4. 2.1/8 | 2.1/4 2.0 2.0 2.0/8 2.0/8 | 2.0/4 3.2 3.2 2.0 | 3.2/2 2.3/2 |
+@Second_time|第二遍
+2.0/4 2.0 2.0/2 | 2.0/4 2.0 2.0/2 | 2.0/4 2.3 3.0/4. 3.2/8 | 2.0/1 |
+2.1/4 2.1 2.1 2.1 | 2.1/4 2.0 2.0 2.0/8 2.0/8 | 2.3/4 2.3 2.1 3.2 | 3.0/1 |

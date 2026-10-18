@@ -1,0 +1,153 @@
+#pragma once
+// Score data model + import/export.
+//
+// Conventions:
+//   - Time is measured in beats; 1 beat = 1 quarter note (independent of the time-signature denominator).
+//   - String numbers: 0 = string 1 (thinnest, high E4) ... 5 = string 6 (thickest, low E2). This matches the
+//     "string 1 = highest string" convention of tabs/MusicXML/Guitar Pro, just counted from 0.
+//   - Every loader calls Song::finalize() at the end.
+//
+// ===================== .gtab text score format (used by the built-in lessons) =====================
+//   # comment until end of line
+//   title: Twinkle Twinkle       header "key: value" lines (before the body)
+//   artist: Traditional
+//   bpm: 80                      quarter notes per minute
+//   time: 4/4
+//   tuning: E2 A2 D3 G3 B3 E4    optional, string 6 -> string 1 (low -> high)
+//   capo: 0
+//   level: 1                     difficulty 1..5
+//   desc: description text
+//   ---                          optional separator; the body starts at the first line that is not "key: value"
+//
+//   The body consists of whitespace-separated tokens:
+//     3.2          single note "string.fret" (string 1..6, 1 = thinnest string): string 3, fret 2
+//     3.2/8        with a duration: /1 whole /2 half /4 quarter /8 eighth /16 sixteenth /32;
+//                  dotted "/4."; triplet "/8t". Without a duration the previous one is reused (initially /4)
+//     1.0+2.1+3.0  chord (notes sounding together), joined with +
+//     [G]/2        named chord (shape looked up in the chord library)
+//     [C:x32010]   custom chord shape: string 6 -> string 1, one digit or x per string; frets > 9 use commas:
+//                  [A:5,7,7,6,5,5]
+//     E4/4  F#3  Bb3   note names (fingering assigned automatically)
+//     r/4          rest
+//     Suffix modifiers (after the duration, any number): ~ tie to the next note   h hammer-on   p pull-off
+//                  s slide   x dead note   m palm mute   v down strum   ^ up strum    e.g. 3.5/8h  [G]/4v
+//     |            bar line (readability + beat-count check, does not affect timing)
+//     @Intro       section marker (up to the next whitespace; use _ for spaces)
+//     "lyric"      attached to the next note event
+//     {bpm=100}    tempo change;  {time=3/4} time-signature change
+//
+//   Bilingual text: header values (title, artist, desc), section markers and lyrics may be written as
+//   "English|Chinese" (the Chinese side in Chinese characters). The UI shows the part for the current language
+//   via gs::loc() (common/I18n.h); either side may be empty (it then falls back to the other side). Section
+//   tokens use _ for spaces on both sides:
+//     title: Twinkle Twinkle Little Star|<Chinese title>
+//     @Slow:_two_strums_per_bar|<Chinese_name>
+//     "Twin|<Chinese syllable>"
+//   A '|' inside such a token is part of the text; only a standalone "|" token is a bar line.
+//   Several "desc:" lines that are each bilingual are merged per side ("English lines|Chinese lines").
+// ===================================================================================================
+#include <cstdint>
+#include <string>
+#include <vector>
+
+namespace gs {
+
+enum NoteFlags : uint32_t {
+    NF_TieFromPrev = 1u << 0,  // tie: continuation of the previous note of the same pitch (not played again)
+    NF_Hammer      = 1u << 1,  // hammer-on (from the previous note to this one)
+    NF_Pull        = 1u << 2,  // pull-off
+    NF_Slide       = 1u << 3,  // slide (into this note)
+    NF_Bend        = 1u << 4,  // bend
+    NF_PalmMute    = 1u << 5,  // palm mute
+    NF_Dead        = 1u << 6,  // dead note (x, no pitch)
+    NF_Harmonic    = 1u << 7,  // harmonic
+    NF_Vibrato     = 1u << 8,  // vibrato
+    NF_LetRing     = 1u << 9,  // let ring
+    NF_Ghost       = 1u << 10, // ghost note
+    NF_Accent      = 1u << 11, // accent
+};
+
+struct SongNote {
+    int string = -1;        // 0..5, -1 = unassigned (finalize() assigns one)
+    int fret = 0;           // 0 = open string
+    int midi = -1;          // MIDI pitch (valid after finalize(); dead notes also get string/fret pitch)
+    double durBeats = 1.0;  // duration (beats)
+    uint32_t flags = 0;     // NoteFlags
+};
+
+enum class Strum : uint8_t { None, Down, Up };
+
+struct SongEvent {
+    double beat = 0;               // start (beats from the beginning of the song)
+    double durBeats = 1;           // duration (beats)
+    std::vector<SongNote> notes;   // notes sounding together (rests are not stored)
+    std::string chordName;         // optional, e.g. "G" "Em"
+    std::string lyric;             // optional
+    Strum strum = Strum::None;
+};
+
+struct TimeSig { double beat = 0; int num = 4, den = 4; };
+struct TempoPoint { double beat = 0; double bpm = 120; };   // quarter notes per minute
+struct Section { double beat = 0; std::string name; };
+struct BarLine { double beat = 0; int number = 1; };         // bar start (generated by finalize(), numbered from 1)
+
+struct Song {
+    std::string title, artist, album, source, description;
+    int level = 0;                              // difficulty 1..5, 0 = unknown
+    int tuning[6] = {64, 59, 55, 50, 45, 40};   // open-string MIDI pitches, [0] = string 1 E4 ... [5] = string 6 E2
+    int capo = 0;                               // capo fret. midi = tuning + capo + fret
+    std::vector<TempoPoint> tempo;              // sorted by beat, at least 1 entry (beat 0) after finalize()
+    std::vector<TimeSig> timeSigs;              // sorted by beat, at least 1 entry (beat 0) after finalize()
+    std::vector<SongEvent> events;              // sorted by beat
+    std::vector<Section> sections;
+    std::vector<BarLine> bars;
+    double lengthBeats = 0;                     // total length (beats), aligned to the end of a bar
+
+    double bpmAt(double beat) const;
+    double beatToSec(double beat) const;        // integrates the tempo map
+    double secToBeat(double sec) const;
+    double lengthSec() const { return beatToSec(lengthBeats); }
+    const TimeSig& timeSigAt(double beat) const;
+    int midiOf(int string, int fret) const { return tuning[string] + capo + fret; }
+
+    // Sorts; fills in midi; calls autoFinger for notes with string == -1; merges/marks ties; drops empty
+    // events; generates bars; computes lengthBeats; guarantees non-empty tempo/timeSigs.
+    void finalize();
+};
+
+struct TrackInfo {
+    int index = 0;
+    std::string name;
+    bool isGuitarLike = false;   // looks like a guitar/bass track (has string data or a fitting range)
+    int noteCount = 0;
+};
+
+// ---- Import / export ----
+// Detected by extension/content: .gtab .txt/.tab (ASCII tab) .xml .musicxml .mxl .mid .midi .gp3 .gp4 .gp5 .gpx .gp
+// track: -1 = pick the most suitable guitar track automatically; if tracks is non-null it receives the list of
+// selectable tracks (the UI uses it to switch tracks).
+bool loadSongFile(const std::string& path, Song& out, std::string& err,
+                  int track = -1, std::vector<TrackInfo>* tracks = nullptr);
+bool parseGtab(const std::string& text, Song& out, std::string& err);
+bool parseAsciiTab(const std::string& text, Song& out, std::string& err);
+// Auto-detects pasted text: .gtab / ASCII tab / MusicXML / GPIF string.
+bool parseSongText(const std::string& text, Song& out, std::string& err);
+bool loadMusicXml(const std::string& path, Song& out, std::string& err, int track = -1, std::vector<TrackInfo>* tracks = nullptr);
+bool loadMidiFile(const std::string& path, Song& out, std::string& err, int track = -1, std::vector<TrackInfo>* tracks = nullptr);
+bool loadGuitarPro(const std::string& path, Song& out, std::string& err, int track = -1, std::vector<TrackInfo>* tracks = nullptr);
+std::string writeGtab(const Song& song);
+const std::vector<std::string>& supportedSongExtensions();  // lower case, with dot: ".gtab" ...
+
+// ---- Fingering / chords / note names ----
+void autoFinger(Song& song);  // assigns (string, fret) to notes with string == -1, beginner-friendly (low positions, few shifts)
+// Chord library. fretsLowToHigh[0] = string 6 ... [5] = string 1, -1 = not played. Supports the common open chords
+// (C D E G A Am Em Dm E7 A7 D7 G7 C7 B7 Cmaj7 Fmaj7 Amaj7 Dsus2 Dsus4 Asus2 Asus4 Esus4 Am7 Em7 Dm7 F (barre / small F)
+// Bm ...) plus generic barre shapes.
+bool chordShape(const std::string& name, int fretsLowToHigh[6]);
+// Registers the Chinese translations of song-module messages (implemented in song/I18nZh.cpp).
+void registerSongTranslations();
+
+std::string midiToName(int midi);          // 60 -> "C4", 61 -> "C#4"
+int nameToMidi(const std::string& name);   // "C4" -> 60, "Bb3" -> 58, -1 on failure
+
+}  // namespace gs

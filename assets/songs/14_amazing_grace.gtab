@@ -1,0 +1,14 @@
+# Built-in lesson. Text fields are bilingual "English|Chinese" (format: src/song/Song.h).
+title: Amazing Grace|奇异恩典
+artist: Traditional Hymn|传统圣诗
+bpm: 80
+time: 3/4
+level: 2
+desc: A melody in 3/4 time, key of G, first position. The first bar is a pickup (two silent beats first). Hold the long notes for their full count.|三拍子旋律, G 调第一把位. 第一小节是弱起 (前两拍空拍). 长音要保持住, 数满拍子.
+desc: Tip: some notes are tied across the bar line - don't pick them again.|小贴士: 有的音跨过小节线 (延音), 中间不要重新拨弦.
+---
+r/2 4.0/4 |
+3.0/2 2.0/8 3.0/8 | 2.0/2 3.2/4 | 3.0/2 4.2/4 | 4.0/2 4.0/4 |
+3.0/2 2.0/8 3.0/8 | 2.0/2 3.2/4 | 2.3/2.~ | 2.3/2 2.0/4 |
+2.3/2 2.0/8 3.0/8 | 2.0/2 3.2/4 | 3.0/2 4.2/4 | 4.0/2 4.0/4 |
+3.0/2 2.0/8 3.0/8 | 2.0/2 3.2/4 | 3.0/2.~ | 3.0/2 r/4 |

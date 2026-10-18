@@ -1,0 +1,17 @@
+# Built-in lesson. Text fields are bilingual "English|Chinese" (format: src/song/Song.h).
+title: Lesson 11: First Chords Em / Am|第11课 和弦入门 Em / Am
+artist: Exercise|练习
+bpm: 70
+time: 4/4
+level: 1
+desc: The two easiest chords. Em: string 5 fret 2 + string 4 fret 2 (middle and ring fingers), strum all six strings; Am: start the strum from string 5 and don't hit string 6.|最简单的两个和弦. Em: 5弦2品 + 4弦2品 (中指、无名指), 六根弦全扫; Am: 从 5 弦开始扫, 不要扫到 6 弦.
+desc: Tip: strum down once per beat (v = down strum). First change chords every two bars, then every bar; move your fingers together as one shape.|小贴士: 每拍向下扫一次 (v = 下扫). 先每两小节换一次和弦, 再每小节换一次; 换和弦时手指整体移动.
+---
+@Change_every_two_bars|每两小节换一次
+[Em]/4v [Em]v [Em]v [Em]v | [Em]/4v [Em]v [Em]v [Em]v | [Am]/4v [Am]v [Am]v [Am]v | [Am]/4v [Am]v [Am]v [Am]v |
+[Em]/4v [Em]v [Em]v [Em]v | [Em]/4v [Em]v [Em]v [Em]v | [Am]/4v [Am]v [Am]v [Am]v | [Am]/4v [Am]v [Am]v [Am]v |
+@Change_every_bar|每小节换一次
+[Em]/4v [Em]v [Em]v [Em]v | [Am]/4v [Am]v [Am]v [Am]v | [Em]/4v [Em]v [Em]v [Em]v | [Am]/4v [Am]v [Am]v [Am]v |
+[Em]/4v [Em]v [Em]v [Em]v | [Am]/4v [Am]v [Am]v [Am]v | [Em]/4v [Em]v [Em]v [Em]v | [Am]/4v [Am]v [Am]v [Am]v |
+@Ending|结束
+[Em]/1v |

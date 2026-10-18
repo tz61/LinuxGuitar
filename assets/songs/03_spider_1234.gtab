@@ -1,0 +1,18 @@
+# Built-in lesson. Text fields are bilingual "English|Chinese" (format: src/song/Song.h).
+title: Lesson 3: Spider Exercise 1-2-3-4|第3课 爬格子 1-2-3-4
+artist: Exercise|练习
+bpm: 60
+time: 4/4
+level: 1
+desc: The classic finger warm-up: frets 1, 2, 3, 4 on every string, one finger per fret from index to pinky. Go up, then come back down.|经典的手指热身: 每根弦依次按 1、2、3、4 品, 食指到小指一指一品. 先上行再下行.
+desc: Tip: if it is too fast, set the speed to 50%; keep the fingers you just used close to the strings.|小贴士: 太快跟不上就把速度调到 50%; 按下一个品时, 前面的手指尽量不要抬太高.
+---
+@Ascending|上行
+6.1/8 6.2 6.3 6.4 5.1 5.2 5.3 5.4 |
+4.1/8 4.2 4.3 4.4 3.1 3.2 3.3 3.4 |
+2.1/8 2.2 2.3 2.4 1.1 1.2 1.3 1.4 |
+@Descending|下行
+1.4/8 1.3 1.2 1.1 2.4 2.3 2.2 2.1 |
+3.4/8 3.3 3.2 3.1 4.4 4.3 4.2 4.1 |
+5.4/8 5.3 5.2 5.1 6.4 6.3 6.2 6.1 |
+6.0/1 |

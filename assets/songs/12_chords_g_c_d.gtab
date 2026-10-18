@@ -1,0 +1,17 @@
+# Built-in lesson. Text fields are bilingual "English|Chinese" (format: src/song/Song.h).
+title: Lesson 12: Changing G - C - D|第12课 G - C - D 换和弦
+artist: Exercise|练习
+bpm: 70
+time: 4/4
+level: 2
+desc: The three most common folk chords - enough for hundreds of songs. Strum all six strings for G, start from string 5 for C and from string 4 for D.|民谣最常用的三个和弦, 能弹几百首歌. G 扫六根弦, C 从 5 弦开始扫, D 从 4 弦开始扫.
+desc: Tip: start with half notes (two strums per bar) to give your fingers time, then switch to quarter notes once it feels easy.|小贴士: 先用二分音符 (每小节扫两下) 给手指留时间, 熟练后再换成四分音符.
+---
+@Slow:_two_strums_per_bar|慢速:_每小节两下
+[G]/2v [G]v | [G]/2v [G]v | [C]/2v [C]v | [C]/2v [C]v | [D]/2v [D]v | [D]/2v [D]v | [G]/2v [G]v | [G]/2v [G]v |
+@Four_strums_per_bar|每小节四下
+[G]/4v [G]v [G]v [G]v | [C]/4v [C]v [C]v [C]v | [D]/4v [D]v [D]v [D]v | [G]/4v [G]v [G]v [G]v |
+@Change_every_half_bar|半小节换一次
+[G]/4v [G]v [C]v [C]v | [D]/4v [D]v [G]v [G]v | [G]/4v [G]v [C]v [C]v | [D]/4v [D]v [G]v [G]v |
+@Ending|结束
+[G]/1v |

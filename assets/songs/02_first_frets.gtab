@@ -1,0 +1,18 @@
+# Built-in lesson. Text fields are bilingual "English|Chinese" (format: src/song/Song.h).
+title: Lesson 2: First Frets|第2课 第一次按品
+artist: Exercise|练习
+bpm: 60
+time: 4/4
+level: 1
+desc: Practice frets 0, 1 and 3 on strings 1 and 2 (string 1: E F G, string 2: B C D). Use your index finger on fret 1 and your ring finger on fret 3.|在 1 弦和 2 弦上练习 0、1、3 品 (1弦: E F G, 2弦: B C D). 1 品用食指, 3 品用无名指.
+desc: Tip: press just behind the fret wire with your fingertip standing upright, so the note rings clean instead of buzzing.|小贴士: 手指按在品丝的左边 (靠近品丝), 用指尖立起来按, 声音才干净不"嗡嗡"响.
+---
+@String_1:_E_F_G|1弦:_E_F_G
+1.0/4 1.1 1.3 1.1 | 1.0/4 1.1 1.3/2 |
+1.0/4 1.1 1.3 1.1 | 1.0/1 |
+@String_2:_B_C_D|2弦:_B_C_D
+2.0/4 2.1 2.3 2.1 | 2.0/4 2.1 2.3/2 |
+2.0/4 2.1 2.3 2.1 | 2.0/1 |
+@Both_strings_together|两根弦连起来
+2.0/4 2.1 2.3 1.0 | 1.1/4 1.3/2. |
+1.3/4 1.1 1.0 2.3 | 2.1/4 2.0/2. |

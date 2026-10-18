@@ -1,0 +1,17 @@
+# Built-in lesson. Text fields are bilingual "English|Chinese" (format: src/song/Song.h).
+title: Ode to Joy|欢乐颂
+artist: Beethoven|贝多芬
+bpm: 90
+time: 4/4
+level: 1
+desc: The famous melody from the Ninth Symphony, in G, first position, on strings 2, 3 and 4 only.|第九交响曲中的著名旋律, G 调第一把位, 只用 2、3、4 弦.
+desc: Tip: count the dotted rhythm at the end of each phrase carefully (one and a half beats + half a beat): "one - two and".|小贴士: 每句结尾的附点节奏 (一拍半 + 半拍) 要数清楚: "一 — 二 嗒".
+---
+@Phrase_1|第一句
+2.0/4 2.0 2.1 2.3 | 2.3/4 2.1 2.0 3.2 | 3.0/4 3.0 3.2 2.0 | 2.0/4. 3.2/8 3.2/2 |
+@Phrase_2|第二句
+2.0/4 2.0 2.1 2.3 | 2.3/4 2.1 2.0 3.2 | 3.0/4 3.0 3.2 2.0 | 3.2/4. 3.0/8 3.0/2 |
+@Phrase_3|第三句
+3.2/4 3.2 2.0 3.0 | 3.2/4 2.0/8 2.1 2.0/4 3.0 | 3.2/4 2.0/8 2.1 2.0/4 3.2 | 3.0/4 3.2 4.0/2 |
+@Phrase_4|第四句
+2.0/4 2.0 2.1 2.3 | 2.3/4 2.1 2.0 3.2 | 3.0/4 3.0 3.2 2.0 | 3.2/4. 3.0/8 3.0/2 |

@@ -1,0 +1,16 @@
+# Built-in lesson. Text fields are bilingual "English|Chinese" (format: src/song/Song.h).
+title: Lesson 4: C Major Scale|第4课 C大调音阶
+artist: Exercise|练习
+bpm: 70
+time: 4/4
+level: 1
+desc: The C major scale in first position: do re mi fa sol la ti do. Start on string 5, fret 3 (C).|第一把位的 C 大调音阶: do re mi fa sol la si do. 从 5 弦 3 品 (C) 开始.
+desc: Tip: index finger on fret 1, middle finger on fret 2, ring finger on fret 3; softly sing the note names while you play to learn them faster.|小贴士: 1 品用食指, 2 品用中指, 3 品用无名指; 边弹边小声唱出音名, 记得更快.
+---
+@Ascending|上行
+5.3/4 4.0 4.2 4.3 | 3.0/4 3.2 2.0 2.1 |
+@Descending|下行
+2.1/4 2.0 3.2 3.0 | 4.3/4 4.2 4.0 5.3 |
+@Longer_scale_in_eighth_notes|更长的音阶_八分音符
+5.3/8 4.0 4.2 4.3 3.0 3.2 2.0 2.1 | 2.3/8 1.0 1.1 1.3 1.1 1.0 2.3 2.1 |
+2.0/8 3.2 3.0 4.3 4.2 4.0 5.3/4 | 5.3/1 |

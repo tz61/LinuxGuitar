@@ -1,0 +1,14 @@
+# Built-in lesson. Text fields are bilingual "English|Chinese" (format: src/song/Song.h).
+title: Happy Birthday|生日快乐
+artist: Traditional|传统
+bpm: 90
+time: 3/4
+level: 2
+desc: A song in 3/4 time - count "1 2 3" in every bar. The first bar starts with two silent beats (a pickup), so you begin on beat 3.|三拍子 (3/4) 的歌, 每小节数 "1 2 3". 第一小节前面是两拍空拍 (弱起), 从第三拍开始弹.
+desc: Tip: use your pinky for string 4 fret 4 (F#); the two notes of "Hap-py" are a long-short dotted rhythm.|小贴士: 4弦4品 (F#) 用小指; "祝你" 两个音是 "长-短" 的附点节奏.
+---
+r/2 "Hap-|祝" 4.0/8. "py|你" 4.0/16 |
+"birth-|生" 4.2/4 "day|日" 4.0 "to|快" 3.0 | "you|乐" 4.4/2 "hap-|祝" 4.0/8. "py|你" 4.0/16 |
+"birth-|生" 4.2/4 "day|日" 4.0 "to|快" 3.2 | "you|乐" 3.0/2 "hap-|祝" 4.0/8. "py|你" 4.0/16 |
+"birth-|生" 2.3/4 "day|日" 2.0 "dear|快" 3.0 | "friend|乐" 4.4/4 4.2 "hap-|祝" 2.1/8. "py|你" 2.1/16 |
+"birth-|生" 2.0/4 "day|日" 3.0 "to|快" 3.2 | "you|乐" 3.0/2. |

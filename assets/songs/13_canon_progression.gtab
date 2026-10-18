@@ -1,0 +1,17 @@
+# Built-in lesson. Text fields are bilingual "English|Chinese" (format: src/song/Song.h).
+title: Lesson 13: Canon Chord Progression|第13课 卡农和弦进行
+artist: Pachelbel|帕赫贝尔
+bpm: 70
+time: 4/4
+level: 2
+desc: The classic Canon progression: C - G - Am - Em - F - C - F - G. The F here is the easy Fmaj7 (xx3210) instead of a full barre chord.|卡农的经典进行: C - G - Am - Em - F - C - F - G. 这里的 F 用简单的 Fmaj7 (xx3210), 不用大横按.
+desc: Tip: two strums per chord (half notes). Strum only strings 1-4 for Fmaj7; lots of pop songs use this progression.|小贴士: 每个和弦扫两下 (二分音符). Fmaj7 只扫 1~4 弦; 很多流行歌都用这个进行.
+---
+@First_time|第一遍
+[C]/2v [C]v | [G]/2v [G]v | [Am]/2v [Am]v | [Em]/2v [Em]v |
+[Fmaj7]/2v [Fmaj7]v | [C]/2v [C]v | [Fmaj7]/2v [Fmaj7]v | [G]/2v [G]v |
+@Second_time|第二遍
+[C]/2v [C]v | [G]/2v [G]v | [Am]/2v [Am]v | [Em]/2v [Em]v |
+[Fmaj7]/2v [Fmaj7]v | [C]/2v [C]v | [Fmaj7]/2v [Fmaj7]v | [G]/2v [G]v |
+@Ending|结束
+[C]/1v |

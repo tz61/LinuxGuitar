@@ -1,0 +1,16 @@
+# Built-in lesson. Text fields are bilingual "English|Chinese" (format: src/song/Song.h).
+title: Jasmine Flower (Simplified)|茉莉花 (简化版)
+artist: Jiangsu Folk Song|江苏民歌
+bpm: 72
+time: 2/4
+level: 2
+desc: A Chinese folk song with a pentatonic melody (key of G). The rhythm is simplified for beginners, and only strings 1, 2 and 3 are used. In English the lyrics are shown in pinyin.|中国民歌, 五声音阶旋律 (1=G). 节奏做了简化, 方便初学. 只用 1、2、3 弦.
+desc: Tip: ring finger on string 1 fret 3 (high G); keep the melody smooth and get your finger ready before each change.|小贴士: 1弦3品 (高音 G) 用无名指; 旋律要连贯, 换音时手指提前准备.
+---
+@What_a_beautiful_jasmine_flower|好一朵美丽的茉莉花
+"hǎo|好" 2.0/4 "yì|一" 2.0/8 "duǒ|朵" 2.3/8 | "měi|美" 1.0/8 "lì|丽" 1.3/8 "de|的" 1.0/4 | "mò|茉" 2.3/4 "lì|莉" 2.3/8 1.0/8 | "huā|花" 2.3/2 |
+"hǎo|好" 2.0/4 "yì|一" 2.0/8 "duǒ|朵" 2.3/8 | "měi|美" 1.0/8 "lì|丽" 1.3/8 "de|的" 1.0/4 | "mò|茉" 2.3/4 "lì|莉" 2.3/8 1.0/8 | "huā|花" 2.3/2 |
+@Fragrant_and_lovely_on_every_branch|芬芳美丽满枝桠
+"fēn|芬" 2.3/4 "fāng|芳" 2.3/4 | "měi|美" 2.3/4 "lì|丽" 2.0/8 2.3/8 | "mǎn|满" 1.0/4 "zhī|枝" 1.0/4 | "yā|桠" 2.3/2 |
+@Sweet_and_white,_praised_by_all|又香又白人人夸
+"yòu|又" 2.0/4 "xiāng|香" 3.2/8 2.0/8 | "yòu|又" 2.3/4 "bái|白" 2.0/8 3.2/8 | "rén|人" 3.0/4 "rén|人" 3.0/8 3.2/8 | "kuā|夸" 3.0/2 |

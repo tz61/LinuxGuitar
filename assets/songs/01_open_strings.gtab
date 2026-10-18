@@ -1,0 +1,24 @@
+# Built-in lesson. Text fields are bilingual "English|Chinese" (format: src/song/Song.h).
+title: Lesson 1: Open Strings|第1课 认识空弦
+artist: Exercise|练习
+bpm: 60
+time: 4/4
+level: 1
+desc: Play from the thickest string 6 to the thinnest string 1, four times on each open string, then back again. Remember the string names: 6 E, 5 A, 4 D, 3 G, 2 B, 1 E.|从最粗的 6 弦弹到最细的 1 弦, 每根空弦弹 4 下, 再弹回来. 记住弦名: 6弦E 5弦A 4弦D 3弦G 2弦B 1弦E.
+desc: Tip: pick gently downward and touch only one string at a time; the left hand doesn't press anything yet - keep your eyes on the next string.|小贴士: 拨片轻轻向下拨, 每次只碰一根弦; 左手先不用按, 眼睛看准下一根弦.
+---
+@String_6:_E|6弦_E
+6.0/4 6.0 6.0 6.0 |
+@String_5:_A|5弦_A
+5.0/4 5.0 5.0 5.0 |
+@String_4:_D|4弦_D
+4.0/4 4.0 4.0 4.0 |
+@String_3:_G|3弦_G
+3.0/4 3.0 3.0 3.0 |
+@String_2:_B|2弦_B
+2.0/4 2.0 2.0 2.0 |
+@String_1:_E|1弦_E
+1.0/4 1.0 1.0 1.0 |
+@Back_down|往回弹
+2.0/4 2.0 2.0 2.0 | 3.0/4 3.0 3.0 3.0 | 4.0/4 4.0 4.0 4.0 | 5.0/4 5.0 5.0 5.0 |
+6.0/4 6.0 6.0 6.0 | 6.0/1 |

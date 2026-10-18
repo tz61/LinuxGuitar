@@ -1,0 +1,14 @@
+# Built-in lesson. Text fields are bilingual "English|Chinese" (format: src/song/Song.h).
+title: Greensleeves|绿袖子
+artist: English Folk Song|英国民谣
+bpm: 80
+time: 3/4
+level: 3
+desc: The main melody (first part) of the famous English folk song, A minor, 3/4 time. It has many dotted rhythms and sharps (G# on string 3 fret 1, F# on string 4 fret 4).|著名的英国民谣主旋律 (第一段), A 小调, 三拍子. 有很多附点节奏和升号音 (G# 在 3弦1品, F# 在 4弦4品).
+desc: Tip: dotted quarter + eighth = one and a half beats + half a beat; count "1 - 2 and 3".|小贴士: 附点四分音符 + 八分音符 = 一拍半 + 半拍, 数 "1 - 2 嗒 3".
+---
+r/2 3.2/4 |
+2.1/2 2.3/4 | 1.0/4. 1.1/8 1.0/4 | 2.3/2 2.0/4 | 3.0/4. 3.2/8 2.0/4 |
+2.1/2 3.2/4 | 3.2/4. 3.1/8 3.2/4 | 2.0/2 3.1/4 | 4.2/2 3.2/4 |
+2.1/2 2.3/4 | 1.0/4. 1.1/8 1.0/4 | 2.3/2 2.0/4 | 3.0/4. 3.2/8 2.0/4 |
+2.1/4. 2.0/8 3.2/4 | 3.1/4. 4.4/8 3.1/4 | 3.2/2. |
