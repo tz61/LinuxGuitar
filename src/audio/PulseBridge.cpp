@@ -130,7 +130,8 @@ int runProgram(const std::vector<std::string>& argv, std::string* out, int timeo
 
 PulseBridge::PulseBridge() {
     ring_.init(1u << 19);   // 1.3 s even for 192 kHz stereo
-    scratch_.assign(1u << 14, 0.f);
+    tmpL_.assign(4096, 0.f);
+    tmpR_.assign(4096, 0.f);
 }
 
 bool PulseBridge::pactlAvailable() {
@@ -172,6 +173,7 @@ bool PulseBridge::start(unsigned rate, std::string& msg) {
     runProgram({"pactl", "set-default-sink", kSinkName});
     for (auto& id : sinkInputs()) runProgram({"pactl", "move-sink-input", id, kSinkName});
 
+    rate_.store(rate);
     target_.store(rate * 30 / 1000);  // target buffer 30 ms
     gen_.fetch_add(1);
     run_.store(true);
@@ -241,54 +243,18 @@ void PulseBridge::mixInto(float* L, float* R, int n, float gain) {
     uint32_t g0 = gen_.load(std::memory_order_acquire);
     if (g0 != seenGen_) {  // restarted: drop old data, reset state
         seenGen_ = g0;
-        ring_.skip(ring_.readAvailable());
-        primed_ = false;
-        pos_ = 0;
-        errAvg_ = integ_ = 0;
-        prevL_ = prevR_ = curL_ = curR_ = 0;
+        reader_.reset(rate_.load(), target_.load());
     }
     if (!run_.load(std::memory_order_relaxed)) return;
-    const unsigned target = target_.load(std::memory_order_relaxed);
-    size_t availFrames = ring_.readAvailable() / 2;
-    if (!primed_) {
-        if (availFrames < target) return;
-        primed_ = true;
-        integ_ = 0;
-    }
-    // Buffer level -> resampling ratio (PI control), compensating drift between PulseAudio's timer and the
-    // sound card's crystal
-    double err = ((double)availFrames - target) / target;
-    errAvg_ += 0.01 * (err - errAvg_);
-    integ_ = std::clamp(integ_ + errAvg_ * 1e-4, -0.002, 0.002);
-    ratio_ = 1.0 + std::clamp(errAvg_ * 0.002 + integ_, -0.004, 0.004);
-
-    size_t need = std::min((size_t)std::ceil(n * ratio_ + pos_) + 2, scratch_.size() / 2);
-    size_t got = ring_.peek(scratch_.data(), need * 2) / 2;
-    size_t used = 0;
+    n = std::min(n, (int)tmpL_.size());
+    reader_.read(tmpL_.data(), tmpR_.data(), n);  // silence while (re)buffering
     float g = gainSm_;
     for (int i = 0; i < n; ++i) {
-        pos_ += ratio_;
-        while (pos_ >= 1.0) {
-            pos_ -= 1.0;
-            if (used >= got) {  // underrun: re-buffer
-                primed_ = false;
-                ring_.skip(used * 2);
-                gainSm_ = g;
-                return;
-            }
-            prevL_ = curL_;
-            prevR_ = curR_;
-            curL_ = scratch_[used * 2];
-            curR_ = scratch_[used * 2 + 1];
-            ++used;
-        }
         g += 0.002f * (gain - g);
-        float f = (float)pos_;
-        L[i] += g * (prevL_ + (curL_ - prevL_) * f);
-        R[i] += g * (prevR_ + (curR_ - prevR_) * f);
+        L[i] += g * tmpL_[i];
+        R[i] += g * tmpR_[i];
     }
     gainSm_ = g;
-    ring_.skip(used * 2);
 }
 
 }  // namespace gs

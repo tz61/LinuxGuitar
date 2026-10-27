@@ -72,6 +72,25 @@ bool AlsaDuplex::open(const AlsaConfig& cfg, std::string& err) {
         err = alsaErr(strf(tr("Cannot open capture device %s"), cfg.device.c_str()).c_str(), r);
         return false;
     }
+    if (cfg.captureOnly) {
+        unsigned rate = cfg.rate, per = std::max(8u, cfg.period);
+        if (!setupHw(cap_, false, rate, per, std::max(1024u, per * 16), capCh_, capFmt_, capBufFrames_, err)) {
+            close();
+            return false;
+        }
+        if (!setupSw(cap_, per)) {
+            close();
+            err = tr("Failed to set sw_params");
+            return false;
+        }
+        captureOnly_ = true;
+        rate_ = rate;
+        period_ = per;
+        playBufFrames_ = 0;
+        capBuf_.assign((size_t)period_ * capCh_ * 4, 0);
+        prefill_ = 0;
+        return true;
+    }
     r = snd_pcm_open(&play_, cfg.device.c_str(), SND_PCM_STREAM_PLAYBACK, 0);
     if (r < 0) {
         play_ = nullptr;
@@ -113,11 +132,12 @@ void AlsaDuplex::close() {
     if (cap_) snd_pcm_close(cap_);
     if (play_) snd_pcm_close(play_);
     cap_ = play_ = nullptr;
-    linked_ = false;
+    linked_ = captureOnly_ = false;
 }
 
 std::string AlsaDuplex::formatDesc() const {
     if (!isOpen()) return "-";
+    if (captureOnly_) return strf(tr("%s, recording only"), snd_pcm_format_name((snd_pcm_format_t)capFmt_));
     return strf(tr("%s/%s, %s, playback buffer %u frames"), snd_pcm_format_name((snd_pcm_format_t)capFmt_),
                 snd_pcm_format_name((snd_pcm_format_t)playFmt_), linked_ ? tr("linked") : tr("not linked"),
                 playBufFrames_);
@@ -138,6 +158,11 @@ bool AlsaDuplex::writeSilence(unsigned frames) {
 
 bool AlsaDuplex::start(unsigned prefillFrames) {
     if (!isOpen()) return false;
+    if (captureOnly_) {
+        snd_pcm_drop(cap_);
+        snd_pcm_prepare(cap_);
+        return snd_pcm_start(cap_) == 0;
+    }
     prefill_ = std::clamp(prefillFrames, period_, maxPrefill());
     snd_pcm_drop(cap_);
     snd_pcm_drop(play_);

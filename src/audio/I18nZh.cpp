@@ -17,6 +17,8 @@ void registerAudioTranslations() {
         {"%s/%s, %s, playback buffer %u frames", "%s/%s, %s, 放音缓冲 %u 帧"},
         {"linked", "已链接"},
         {"not linked", "未链接"},
+        {"%s, recording only", "%s, 只录音"},
+        {"Cannot play through %s (%s); using the sound card instead", "无法通过 %s 播放 (%s), 改用声卡输出"},
         // CardMixer
         {"Cannot open the mixer", "无法打开混音器"},
         {"Cannot load the mixer of %s", "无法加载声卡混音器 %s"},

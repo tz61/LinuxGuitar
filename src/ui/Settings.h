@@ -23,6 +23,7 @@ struct Settings {
     float inputGainDb = 0.f;            // digital gain
     // Output
     int outputTarget = 0;  // 0 speakers (rear green line out), 1 front headphones, 2 both
+    std::string outputDevice;  // PulseAudio sink to play through (e.g. Bluetooth headphones); empty = the sound card
     float masterDb = -6.f;
     float guitarDb = 0.f;
     // Practice

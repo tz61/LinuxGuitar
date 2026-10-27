@@ -17,6 +17,7 @@
 #include "audio/DeviceReserve.h"
 #include "audio/Looper.h"
 #include "audio/PulseBridge.h"
+#include "audio/PulseOutput.h"
 #include "fx/Effect.h"
 #include "fx/Preset.h"
 
@@ -33,6 +34,7 @@ struct EngineConfig {
     bool reserveDevice = true;  // ask PulseAudio (via D-Bus) to release the card
     bool simulate = false;      // no-device (simulated) mode
     bool fallbackToSim = true;  // fall back to no-device mode if the card can't be opened (UI keeps working)
+    std::string outputSink;     // PulseAudio sink to play through (e.g. Bluetooth headphones); empty = the sound card
 };
 
 struct EngineStatus {
@@ -42,6 +44,8 @@ struct EngineStatus {
     unsigned fifoFrames = 0, usedFrames = 0;  // calibration: FIFO prefetch / minimum prefill actually needed
     bool calibrated = false;
     int rtPriority = 0;
+    bool pulseOutput = false;  // playing through PulseAudio (outputSink) instead of the sound card
+    std::string outputMsg;     // why the requested output couldn't be used
 };
 
 struct FxSlot {
@@ -72,8 +76,10 @@ public:
     double sampleRate() const { return rate_; }
     int period() const { return (int)period_; }
     int prefillFrames() const { return (int)prefill_.load(std::memory_order_relaxed); }
-    // How many frames our output lags the corresponding input (= prefill); practice scoring compensates for it
-    int outputLatencyFrames() const { return prefillFrames(); }
+    // How many frames our output lags the corresponding input (sound card: the prefill; PulseAudio: its buffers
+    // and the device's delay); practice scoring and the practice display compensate for it
+    int outputLatencyFrames() const { return pulseMode_.load() ? pulseOut_.latencyFrames() : prefillFrames(); }
+    bool pulseOutput() const { return pulseMode_.load(); }
     float roundTripMs() const;  // round-trip estimate: prefill + effect latency + ~0.6 ms AD/DA
 
     // ---- effect chain (UI thread) ----
@@ -105,7 +111,7 @@ public:
     bool outputLimited(double withinSec = 1.0) const;
     float cpuLoad() const { return cpuAvg_.load(std::memory_order_relaxed); }
     float cpuPeak() const { return cpuPeak_.load(std::memory_order_relaxed); }
-    int xruns() const { return xruns_.load(std::memory_order_relaxed); }
+    int xruns() const { return xruns_.load(std::memory_order_relaxed) + (pulseMode_.load() ? pulseOut_.underruns() : 0); }
     float autoLeftWeight() const { return wLpub_.load(std::memory_order_relaxed); }
     float inputLeftDb() const { return inLdb_.load(std::memory_order_relaxed); }
     float inputRightDb() const { return inRdb_.load(std::memory_order_relaxed); }
@@ -135,6 +141,7 @@ private:
         uint64_t seq;
     };
     void audioMain();
+    void captureOnlyLoop();  // sound card records, PulseOutput plays
     void simMain();
     void processBlock(const float* inL, const float* inR, float* L, float* R, int n);
     void publishChain();
@@ -145,6 +152,8 @@ private:
     CardMixer mixer_;
     DeviceReservation reservation_;
     PulseBridge pulse_;
+    PulseOutput pulseOut_;
+    std::atomic<bool> pulseMode_{false};
     Looper looper_;
     Analyzer* analyzer_ = nullptr;
     PracticeAudio* practice_ = nullptr;

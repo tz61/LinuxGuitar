@@ -119,6 +119,7 @@ void App::startAudio() {
     cfg.reserveDevice = settings_.reserveDevice;
     cfg.simulate = opt_.simulate;
     cfg.fallbackToSim = true;
+    cfg.outputSink = settings_.outputDevice;
     engine_.attachAnalyzer(&analyzer_);
     engine_.attachPractice(&practice_.audio());
     engine_.onPrepare = [this](double fs, int, int outLat) { practice_.prepare(fs, outLat); };
@@ -136,11 +137,13 @@ void App::startAudio() {
                       settings_.device.c_str(), st.error.c_str());
         toast(b, true);
     }
+    if (!st.outputMsg.empty()) toast(st.outputMsg, true);
     practice_.audio().demoPlayer = opt_.demo && st.simulated;
     applyInputSettings(true);
     applyOutputSettings(true);
     sysAudioMsg_.clear();
-    if (settings_.systemAudio && !st.simulated) engine_.pulse().start(st.rate, sysAudioMsg_);
+    // Through PulseAudio, other programs already play on the same device: no passthrough needed
+    if (settings_.systemAudio && !st.simulated && !st.pulseOutput) engine_.pulse().start(st.rate, sysAudioMsg_);
     else engine_.pulse().stop();
     lastXruns_ = 0;
 }
@@ -281,9 +284,48 @@ void App::syncPractice() {
     globalBpm().store(song_ && pa.state() != TransportState::Stopped ? (float)(songBpm() * settings_.speed) : settings_.freeBpm);
 }
 
+void App::updateHeardPosition() {
+    const PracticeAudio& pa = practice_.audio();
+    const auto tl = practice_.timeline();
+    const uint64_t now = pa.frameClock();
+    const double pos = pa.position();
+    if (tl.get() != posHistTl_ || (!posHist_.empty() && now < posHist_.back().first)) {  // new song / audio restarted
+        posHist_.clear();
+        posHistTl_ = tl.get();
+    }
+    if (posHist_.empty() || now > posHist_.back().first) posHist_.emplace_back(now, pos);
+    else posHist_.back().second = pos;
+    const double fs = engine_.sampleRate();
+    while (posHist_.size() > 2 && (double)posHist_[1].first + 2 * fs < (double)now) posHist_.pop_front();
+    // Look up the position at (now - output latency)
+    const double target = (double)now - engine_.outputLatencyFrames();
+    const double speed = std::max(0.1f, settings_.speed);
+    heardPos_ = posHist_.front().second;
+    for (size_t i = posHist_.size(); i-- > 0;) {
+        const auto& [f1, p1] = posHist_[i];
+        if ((double)f1 > target) continue;
+        heardPos_ = p1;
+        if (i + 1 < posHist_.size()) {
+            const auto& [f2, p2] = posHist_[i + 1];
+            const double dt = (double)(f2 - f1) / fs;
+            // Steady playback is interpolated; a jump (seek, loop, waiting for a note) shows once it is heard
+            if (p2 >= p1 && std::fabs((p2 - p1) - dt * speed) < 0.02 + 0.1 * dt * speed)
+                heardPos_ = p1 + (p2 - p1) * (target - (double)f1) / (double)(f2 - f1);
+        }
+        break;
+    }
+}
+
+std::string App::outputLabel(const std::string& sink) const {
+    if (sink.empty()) return tr("Sound card");
+    for (const auto& k : sinks_)
+        if (k.name == sink) return k.bluetooth ? k.description + tr(" (Bluetooth)") : k.description;
+    return sink;
+}
+
 float App::songBpm() const {
     if (!song_ || song_->tempo.empty()) return 120.f;
-    return (float)song_->bpmAt(practice_.audio().position() > 0 ? song_->secToBeat(practice_.audio().position()) : 0);
+    return (float)song_->bpmAt(heardPos_ > 0 ? song_->secToBeat(heardPos_) : 0);
 }
 
 // ------------------------------------------------------------------ songs / presets
@@ -507,8 +549,7 @@ int App::nextEventIndex() const {
     if (!tl) return -1;
     const PracticeAudio& pa = practice_.audio();
     if (pa.holding()) return pa.waitingEvent();
-    const double pos = pa.position();
-    int i = tl->eventAt(pos - 0.02);
+    int i = tl->eventAt(heardPos_ - 0.02);
     while (i < (int)tl->events.size() && !tl->events[i].judged) ++i;
     return i < (int)tl->events.size() ? i : -1;
 }
@@ -575,6 +616,7 @@ void App::frame() {
     engine_.reservation().poll();
     engine_.collectGarbage();
     syncPractice();
+    updateHeardPosition();
     if (ImGui::GetTime() - lastPoll_ > 1.0) {
         pollDevices();
         lastPoll_ = ImGui::GetTime();
@@ -678,11 +720,12 @@ void App::drawTopBar(float h) {
         ImGui::InvisibleButton("##status", ImVec2(cw, ch));
         if (ImGui::IsItemClicked()) tab_ = Tab::Settings;
         const bool warn = ImGui::GetTime() < xrunWarnUntil_;
-        ImU32 col = st.simulated ? P.red : (warn ? P.yellow : P.green);
+        ImU32 col = st.simulated ? P.red : (warn || engine_.roundTripMs() > 20.f ? P.yellow : P.green);
         dl->AddRectFilled(cp, ImVec2(cp.x + cw, cp.y + ch), IM_COL32(30, 33, 38, 255), 6 * s);
         dl->AddCircleFilled(ImVec2(cp.x + 14 * s, cp.y + ch * 0.5f), 5 * s, col);
         char b[96];
         if (st.simulated) std::snprintf(b, sizeof b, "%s", tr("No sound card"));
+        else if (st.pulseOutput) std::snprintf(b, sizeof b, tr("Latency %.0f ms"), engine_.roundTripMs());
         else std::snprintf(b, sizeof b, tr("Latency %.1f ms"), engine_.roundTripMs());
         ImGui::PushFont(boldFont(), 0.f);
         dl->AddText(ImVec2(cp.x + 26 * s, cp.y + 3 * s), P.text, b);
@@ -694,6 +737,7 @@ void App::drawTopBar(float h) {
         if (ImGui::IsItemHovered()) {
             ImGui::BeginTooltip();
             ImGui::Text(tr("Device: %s  %s"), st.device.c_str(), st.simulated ? tr("(not open)") : "");
+            if (st.pulseOutput) ImGui::Text(tr("Output: %s"), outputLabel(settings_.outputDevice).c_str());
             if (!st.error.empty()) ImGui::TextColored(ImVec4(1, 0.4f, 0.3f, 1), tr("Error: %s"), st.error.c_str());
             ImGui::Text(tr("Real-time scheduling: %s"), st.rtMsg.c_str());
             ImGui::Text(tr("Device reservation: %s"), st.reserveMsg.c_str());

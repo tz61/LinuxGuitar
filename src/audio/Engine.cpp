@@ -49,7 +49,8 @@ EngineStatus Engine::status() const {
 }
 
 float Engine::roundTripMs() const {
-    double frames = (double)prefill_.load() + fxLatencySamples();
+    // PulseAudio output: one capture period plus everything between our output and the device
+    double frames = (pulseMode_.load() ? (double)period_ + pulseOut_.latencyFrames() : (double)prefill_.load()) + fxLatencySamples();
     return (float)(frames / rate_ * 1000.0 + 0.6);
 }
 
@@ -80,18 +81,32 @@ bool Engine::start(const EngineConfig& cfg) {
         const int card = AlsaDuplex::cardIndexOf(cfg.alsa.device);
         if (cfg.reserveDevice && card >= 0) reservation_.acquire(card, cfg.alsa.device, st.reserveMsg);
         std::string err;
-        ok = alsa_.open(cfg.alsa, err);
+        AlsaConfig ac = cfg.alsa;
+        ac.captureOnly = !cfg.outputSink.empty();
+        ok = alsa_.open(ac, err);
         if (!ok && reservation_.held()) {
             // PulseAudio may not have closed the device yet; wait a bit and retry
             for (int i = 0; i < 10 && !ok; ++i) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
-                ok = alsa_.open(cfg.alsa, err);
+                ok = alsa_.open(ac, err);
+            }
+        }
+        if (ok && ac.captureOnly) {
+            std::string perr;
+            if (pulseOut_.start(cfg.outputSink, alsa_.rate(), perr)) {
+                pulseMode_.store(true);
+                st.pulseOutput = true;
+            } else {  // e.g. the headphones are switched off: play through the sound card instead
+                st.outputMsg = strf(tr("Cannot play through %s (%s); using the sound card instead"), cfg.outputSink.c_str(), perr.c_str());
+                alsa_.close();
+                ac.captureOnly = false;
+                ok = alsa_.open(ac, err);
             }
         }
         if (ok) {
             rate_ = alsa_.rate();
             period_ = alsa_.period();
-            prefill_.store(std::min(alsa_.maxPrefill(), period_ * 6));
+            prefill_.store(pulseMode_.load() ? 0u : std::min(alsa_.maxPrefill(), period_ * 6));
             st.format = alsa_.formatDesc();
             std::string m;
             if (card >= 0 && mixer_.open(card, m)) mixer_.setLoopbackMixing(false);
@@ -168,6 +183,8 @@ void Engine::stop() {
     if (running_.exchange(false) || th_.joinable()) {
         if (th_.joinable()) th_.join();
     }
+    pulseOut_.stop();
+    pulseMode_.store(false);
     alsa_.close();
     reservation_.release();
     if (dmaLatencyFd_ >= 0) {
@@ -193,6 +210,11 @@ void Engine::audioMain() {
         status_.rtMsg = rtMsg;
     }
     _mm_setcsr(_mm_getcsr() | 0x8040);  // FTZ + DAZ: avoid slow denormal arithmetic
+    if (pulseMode_.load()) {
+        captureOnlyLoop();
+        alsa_.stop();
+        return;
+    }
 
     // Calibration: run half a second of silence with a large prefill to measure the minimum prefill this card
     // really needs (FIFO + one period + capture readiness jitter)
@@ -242,6 +264,31 @@ void Engine::audioMain() {
         cpuPeak_.store(peak, std::memory_order_relaxed);
     }
     alsa_.stop();
+}
+
+void Engine::captureOnlyLoop() {
+    if (!alsa_.start(0)) {
+        std::lock_guard<std::mutex> lk(statusMu_);
+        status_.error = tr("Failed to start the sound card");
+    }
+    const double periodSec = (double)period_ / rate_;
+    float avg = 0.f, peak = 0.f;
+    while (running_.load(std::memory_order_relaxed)) {
+        if (alsa_.readPeriod(inL_.data(), inR_.data()) < 0) {
+            noteXrun();
+            if (!alsa_.start(0)) std::this_thread::sleep_for(std::chrono::milliseconds(20));
+            continue;
+        }
+        const double t0 = nowSec();
+        processBlock(inL_.data(), inR_.data(), outL_.data(), outR_.data(), (int)period_);
+        const double t1 = nowSec();
+        pulseOut_.write(outL_.data(), outR_.data(), (int)period_);
+        const float load = (float)((t1 - t0) / periodSec);
+        avg += 0.01f * (load - avg);
+        peak = std::max(load, peak * 0.9995f);
+        cpuAvg_.store(avg, std::memory_order_relaxed);
+        cpuPeak_.store(peak, std::memory_order_relaxed);
+    }
 }
 
 void Engine::simMain() {

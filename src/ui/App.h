@@ -101,6 +101,10 @@ private:
     void autoGainStep();
     float songBpm() const;
     int nextEventIndex() const;
+    // Song position the player hears right now: the transport runs ahead of the speakers/headphones by the output
+    // latency (a few ms on the sound card, ~0.2 s over Bluetooth). Updated once per frame.
+    void updateHeardPosition();
+    std::string outputLabel(const std::string& sink) const;  // "Sound card" / the device's description
 
     AppOptions opt_;
     Settings settings_;
@@ -171,6 +175,11 @@ private:
     };
     std::deque<Toast> toasts_;
     std::string sysAudioMsg_;
+    std::vector<PulseSink> sinks_;  // PulseAudio playback devices (refreshed while Settings is open)
+    double sinksTime_ = -10;
+    std::deque<std::pair<uint64_t, double>> posHist_;  // (engine frame, transport position) once per frame
+    const SongTimeline* posHistTl_ = nullptr;
+    double heardPos_ = 0;
     bool welcomeShown_ = false;
     bool limiterUi_ = true;
 };

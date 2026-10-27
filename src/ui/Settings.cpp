@@ -45,7 +45,7 @@ std::vector<Field> fields(Settings& s) {
         S("device", s.device), I("rate", s.rate), I("period", s.period), F("safetyMs", s.safetyMs),
         B("reserveDevice", s.reserveDevice), B("systemAudio", s.systemAudio), F("systemAudioDb", s.systemAudioDb),
         S("inputSource", s.inputSource), I("boost", s.boost), F("captureDb", s.captureDb), B("applyHwGain", s.applyHwGain),
-        I("inputChannel", s.inputChannel), F("inputGainDb", s.inputGainDb), I("outputTarget", s.outputTarget), F("masterDb", s.masterDb),
+        I("inputChannel", s.inputChannel), F("inputGainDb", s.inputGainDb), I("outputTarget", s.outputTarget), S("outputDevice", s.outputDevice), F("masterDb", s.masterDb),
         F("guitarDb", s.guitarDb), F("speed", s.speed), B("waitMode", s.waitMode), B("metronome", s.metronome),
         F("metronomeVol", s.metronomeVol), B("reference", s.reference), F("referenceVol", s.referenceVol),
         B("countIn", s.countIn), I("countInBeats", s.countInBeats), I("endBeats", s.endBeats), F("tolerance", s.tolerance), F("latencyOffsetMs", s.latencyOffsetMs),

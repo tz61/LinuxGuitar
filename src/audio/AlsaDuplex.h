@@ -20,6 +20,7 @@ struct AlsaConfig {
     unsigned period = 16;        // frames per period (smaller = lower latency, more frequent wakeups)
     float safetyMs = 1.0f;       // safety margin on top of the calibration (0.5 ms = lower latency, occasional xruns)
     unsigned fixedPrefill = 0;   // > 0: skip calibration and use this prefill (frames)
+    bool captureOnly = false;    // record only; the output goes elsewhere (PulseOutput)
 };
 
 struct AlsaDeviceInfo {
@@ -41,11 +42,12 @@ public:
     ~AlsaDuplex() { close(); }
     bool open(const AlsaConfig& cfg, std::string& err);
     void close();
-    bool isOpen() const { return cap_ && play_; }
+    bool isOpen() const { return cap_ && (play_ || captureOnly_); }
+    bool captureOnly() const { return captureOnly_; }
 
     // Called from the audio thread
     AlsaCalibration calibrate(double seconds = 0.5);   // run silence to measure the required prefill
-    bool start(unsigned prefillFrames);                // prefill silence and start both streams
+    bool start(unsigned prefillFrames);                // prefill silence and start both streams (capture only: just start)
     int readPeriod(float* L, float* R);                // blocking read of one period; <0 = error (xrun)
     int writePeriod(const float* L, const float* R);
     bool recover() { return start(prefill_); }
@@ -69,7 +71,7 @@ private:
 
     snd_pcm_t* cap_ = nullptr;
     snd_pcm_t* play_ = nullptr;
-    bool linked_ = false;
+    bool linked_ = false, captureOnly_ = false;
     unsigned rate_ = 0, period_ = 0, prefill_ = 0, capCh_ = 2, playCh_ = 2, playBufFrames_ = 0, capBufFrames_ = 0;
     int capFmt_ = 0, playFmt_ = 0;  // snd_pcm_format_t
     std::vector<char> capBuf_, playBuf_, silence_;

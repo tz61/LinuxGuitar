@@ -196,6 +196,11 @@ it is cleaned up on the next start).
 - **Sound card busy**: close other programs that use the card directly (such as JACK), or choose another device in Settings.
   If the card cannot be opened, the app runs in no-sound-card mode.
 - **Judged late/early although you feel on time**: Settings → Practice → Latency calibration.
+- **Bluetooth headphones (or HDMI / USB output)**: Settings → Output & system audio → Output device. The guitar is still
+  recorded by the sound card; only the output goes through PulseAudio. Bluetooth adds about 0.15–0.3 s of delay (measured
+  here: PulseAudio reports ~145 ms, the headphones add their own), so you hear your guitar late — fine for lessons, the
+  reference and the metronome, while wired headphones or the speakers are much better for playing along. The note display
+  and the scoring allow for the delay; fine-tune with Latency calibration if needed.
 
 ## 10. Development
 

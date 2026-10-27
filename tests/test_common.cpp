@@ -1,4 +1,5 @@
 // Offline tests for src/common: PNG encode/decode (screenshots, the built-in window icon).
+#include <cmath>
 #include <cstdio>
 #include <fstream>
 #include <iterator>
@@ -6,6 +7,7 @@
 #include <string>
 #include <vector>
 
+#include "common/DriftReader.h"
 #include "common/Png.h"
 
 using namespace gs;
@@ -87,7 +89,77 @@ static void testIcons() {
     }
 }
 
+// Two clocks: a producer (sound card capture) writes 16-frame blocks, a consumer (PulseAudio) reads 5 ms chunks at
+// a slightly different real rate. The reader must keep its buffer near the target without underruns and
+// without clicks.
+static void testDriftReader() {
+    std::printf("Drift compensation\n");
+    const double fs = 48000;
+    struct Case {
+        double ppm;
+        int pblock, cblock;
+        unsigned target;
+    };
+    // PulseOutput: the sound card writes 16 frames, PulseAudio takes 5 ms; system audio passthrough: the other way round
+    const Case cases[] = {{-300, 16, 240, 1440}, {0, 16, 240, 1440}, {120, 16, 240, 1440}, {300, 16, 240, 1440},
+                          {-300, 240, 16, 1440}, {300, 240, 16, 1440}};
+    for (const Case& cs : cases) {
+        const double ppm = cs.ppm;
+        SpscRing<float> ring(1u << 16);
+        DriftReader rd(ring);
+        const unsigned target = cs.target;
+        rd.reset((unsigned)fs, target);
+        const double prodRate = fs, consRate = fs * (1 + ppm * 1e-6);  // true frames per second of each clock
+        const int pblock = cs.pblock, cblock = cs.cblock;
+        double tProd = 0, tCons = 0.002;
+        uint64_t produced = 0;
+        int underruns = 0, reads = 0;
+        size_t minLevel = SIZE_MAX, maxLevel = 0;
+        float maxStep = 0, prev = 0;
+        bool havePrev = false;
+        std::vector<float> blk(pblock * 2), L(cblock), R(cblock);
+        const double seconds = 600;
+        while (tCons < seconds) {
+            if (tProd <= tCons) {  // producer: a 440 Hz sine
+                for (int i = 0; i < pblock; ++i) {
+                    const float v = 0.5f * (float)std::sin(2 * M_PI * 440.0 * (double)(produced + i) / fs);
+                    blk[2 * i] = blk[2 * i + 1] = v;
+                }
+                ring.write(blk.data(), blk.size());
+                produced += pblock;
+                tProd += pblock / prodRate;
+                continue;
+            }
+            const bool was = rd.primed();
+            const bool ok = rd.read(L.data(), R.data(), cblock);
+            ++reads;
+            if (!ok && was) ++underruns;
+            if (tCons > 10) {  // after settling
+                const size_t lvl = ring.readAvailable() / 2;
+                minLevel = std::min(minLevel, lvl);
+                maxLevel = std::max(maxLevel, lvl);
+                for (int i = 0; i < cblock; ++i) {
+                    if (havePrev) maxStep = std::max(maxStep, std::fabs(L[i] - prev));
+                    prev = L[i];
+                    havePrev = true;
+                }
+            }
+            tCons += cblock / consRate;
+        }
+        // A 440 Hz sine at 0.5 changes by at most 0.5 * 2 pi * 440 / 48000 = 0.0288 per sample
+        std::printf("  %+5.0f ppm, write %3d / read %3d: ratio %.6f, buffer %zu..%zu frames (target %u), underruns %d, max step %.4f\n",
+                    ppm, pblock, cblock, rd.ratio(), minLevel, maxLevel, target, underruns, maxStep);
+        CHECK(underruns == 0, "%+.0f ppm: %d underruns", ppm, underruns);
+        CHECK(minLevel > target / 3 && maxLevel < target * 2, "%+.0f ppm: buffer drifted to %zu..%zu frames", ppm, minLevel, maxLevel);
+        // Input consumed per output frame must match the clock ratio (to within the controller's ripple)
+        CHECK(std::fabs(rd.ratio() - prodRate / consRate) < 1e-4, "%+.0f ppm: ratio %.6f, expected %.6f", ppm, rd.ratio(),
+              prodRate / consRate);
+        CHECK(maxStep < 0.031f, "%+.0f ppm: a click (step %.4f)", ppm, maxStep);
+    }
+}
+
 int main() {
+    testDriftReader();
     testRoundTrip();
     testBadInput();
     testIcons();

@@ -265,7 +265,7 @@ void App::drawTransport() {
     // Status text + time
     SameLineIfFits(TextWidth(tr("Playing")) + TextWidth("0:00 / 0:00   bar 00") + 60 * s);
     if (tl) {
-        const double pos = pa.position();
+        const double pos = heardPos_;
         std::string stTxt;
         ImU32 col = P.textDim;
         switch (st) {
@@ -330,7 +330,7 @@ void App::drawTimeline(float h) {
         dl->AddText(ImVec2(x + 2 * s, p.y + 1), P.accent2, name.c_str());
         dl->PopClipRect();
     }
-    const float px = X(pa.position());
+    const float px = X(heardPos_);
     dl->AddRectFilled(ImVec2(px - 1.5f * s, p.y - 2 * s), ImVec2(px + 1.5f * s, p.y + h + 2 * s), P.accent);
     // Interaction: click to jump; Shift+drag sets the loop
     ImGuiIO& io = ImGui::GetIO();
@@ -380,7 +380,7 @@ void App::drawHighway(ImVec2 size) {
     const float nowX = p.x + size.x * 0.22f;
     const float pps = 210.f * s * settings_.zoom;  // pixels per second of song time
     PracticeAudio& pa = practice_.audio();
-    const double pos = pa.position();
+    const double pos = heardPos_;
     const double t0 = pos - (nowX - p.x) / pps, t1 = pos + (q.x - nowX) / pps;
     auto X = [&](double t) { return nowX + (float)((t - pos) * pps); };
     // Strings

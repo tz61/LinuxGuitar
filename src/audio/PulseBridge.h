@@ -8,6 +8,7 @@
 #include <thread>
 #include <vector>
 
+#include "common/DriftReader.h"
 #include "common/SpscRing.h"
 
 namespace gs {
@@ -35,17 +36,15 @@ private:
     std::thread th_;
     std::atomic<bool> run_{false};
     std::atomic<uint32_t> gen_{0};
-    std::atomic<unsigned> target_{1440};
+    std::atomic<unsigned> target_{1440}, rate_{48000};
     std::string origSink_;
     int module_ = -1;
 
     // ---- audio thread only ----
     uint32_t seenGen_ = 0;
-    bool primed_ = false;
-    double pos_ = 0, ratio_ = 1, errAvg_ = 0, integ_ = 0;
-    float prevL_ = 0, prevR_ = 0, curL_ = 0, curR_ = 0;
+    DriftReader reader_{ring_};  // compensates drift between PulseAudio's timer and the sound card's crystal
+    std::vector<float> tmpL_, tmpR_;
     float gainSm_ = 0;
-    std::vector<float> scratch_;
 };
 
 // Run an external program (no shell) and capture its stdout. Returns the exit code, -1 if it couldn't run.

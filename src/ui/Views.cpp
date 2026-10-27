@@ -281,8 +281,15 @@ void App::drawSettings() {
                               st.usedFrames, engine_.prefillFrames());
                 row(tr("Auto-calibration"), b);
             }
-            std::snprintf(b, sizeof b, tr("%.2f ms  (prefill %.2f ms + effects %.2f ms + AD/DA ~0.6 ms)"), engine_.roundTripMs(),
-                          engine_.prefillFrames() / engine_.sampleRate() * 1000.0, engine_.fxLatencySamples() / engine_.sampleRate() * 1000.0);
+            const double fsr = engine_.sampleRate();
+            if (st.pulseOutput)
+                std::snprintf(b, sizeof b, tr("%.0f ms  (output device %.0f ms + input %.2f ms + effects %.2f ms)"), engine_.roundTripMs(),
+                              engine_.outputLatencyFrames() / fsr * 1000.0, engine_.period() / fsr * 1000.0,
+                              engine_.fxLatencySamples() / fsr * 1000.0);
+            else
+                std::snprintf(b, sizeof b, tr("%.2f ms  (prefill %.2f ms + effects %.2f ms + AD/DA ~0.6 ms)"), engine_.roundTripMs(),
+                              engine_.prefillFrames() / fsr * 1000.0, engine_.fxLatencySamples() / fsr * 1000.0);
+            row(tr("Output"), st.pulseOutput ? outputLabel(settings_.outputDevice) : std::string(tr("Sound card")));
             row(tr("Round-trip latency"), b, engine_.roundTripMs() < 8 ? P.green : P.yellow);
             std::snprintf(b, sizeof b, tr("mean %.1f%%  peak %.1f%% (share of each period used by the audio thread)"), engine_.cpuLoad() * 100.f,
                           engine_.cpuPeak() * 100.f);
@@ -393,23 +400,66 @@ void App::drawSettings() {
     }
 
     if (ImGui::CollapsingHeader(tr("Output & system audio"), ImGuiTreeNodeFlags_DefaultOpen)) {
-        const char* outNames[] = {tr("Speakers (green line-out jack on the back)"), tr("Headphones (front panel jack)"),
-                                  tr("Both speakers and headphones")};
-        ImGui::SetNextItemWidth(320 * s);
-        if (ImGui::Combo(tr("Output to"), &settings_.outputTarget, outNames, 3)) applyOutputSettings(true);
-        HelpTip(tr("As soon as anything is plugged into the front panel, the system assumes headphones and mutes the speakers on the "
-                   "back. Choose the output here and this app keeps it that way while it runs."));
-        if (mx.isOpen()) {
-            const bool lo = mx.jackPlugged("Line Out Front"), hp = mx.jackPlugged("Front Headphone");
-            ImGui::TextDisabled(tr("Rear speaker jack: %s    Front headphone jack: %s"), lo ? tr("plugged in") : tr("not plugged in"),
-                                hp ? tr("plugged in") : tr("not plugged in"));
-            if (hp && settings_.outputTarget != 1) {
+        // Output device: the sound card itself, or anything the system's sound server plays on (Bluetooth, HDMI, USB)
+        if (ImGui::GetTime() - sinksTime_ > 3) {
+            sinks_ = PulseOutput::listSinks();
+            sinksTime_ = ImGui::GetTime();
+        }
+        const PulseSink* curSink = nullptr;
+        for (const auto& k : sinks_)
+            if (!settings_.outputDevice.empty() && k.name == settings_.outputDevice) curSink = &k;
+        std::string curLabel = outputLabel(settings_.outputDevice);
+        if (!settings_.outputDevice.empty() && !curSink) curLabel += tr(" (not connected)");
+        ImGui::SetNextItemWidth(380 * s);
+        if (ImGui::BeginCombo(tr("Output device"), curLabel.c_str())) {
+            if (ImGui::Selectable(tr("Sound card (lowest latency)"), settings_.outputDevice.empty()) && !settings_.outputDevice.empty()) {
+                settings_.outputDevice.clear();
+                restartAudio();
+            }
+            const int ownCard = AlsaDuplex::cardIndexOf(settings_.device);
+            for (const auto& k : sinks_) {
+                if (k.alsaCard >= 0 && k.alsaCard == ownCard) continue;  // the sound card itself: the first entry
+                const std::string lab = (k.bluetooth ? k.description + tr(" (Bluetooth)") : k.description) + "##" + k.name;
+                if (ImGui::Selectable(lab.c_str(), k.name == settings_.outputDevice) && k.name != settings_.outputDevice) {
+                    settings_.outputDevice = k.name;
+                    restartAudio();
+                }
+            }
+            ImGui::EndCombo();
+        }
+        HelpTip(tr("The guitar is always recorded by the sound card. Playing through the sound card too gives the lowest latency "
+                   "(a few ms). Other devices (Bluetooth headphones, HDMI, USB) play through the system's sound server and add delay."));
+        if (st.pulseOutput) {
+            ImGui::TextDisabled(tr("Latency now: about %.0f ms"), engine_.roundTripMs());
+            if (curSink && curSink->bluetooth) {
                 ImGui::PushTextWrapPos(0.f);
                 ImGui::TextColored(ImGui::ColorConvertU32ToFloat4(P.yellow), "%s",
-                                   tr("Something is plugged into the front headphone jack. That jack is an output: if it is the guitar, "
-                                      "the computer cannot record it. Please plug the guitar into the blue line-in jack on the back "
-                                      "(next to the green speaker jack)."));
+                                   tr("Bluetooth adds about 0.15-0.3 s of delay, so you hear your guitar late. That is fine for "
+                                      "listening to lessons, the reference and the metronome; for playing along, wired headphones "
+                                      "or the speakers feel much better. Practice scoring and the note display allow for the delay; "
+                                      "if you are still judged late, increase Practice > Latency calibration."));
                 ImGui::PopTextWrapPos();
+            }
+        }
+        if (!st.pulseOutput) {  // the sound card's own jacks
+            const char* outNames[] = {tr("Speakers (green line-out jack on the back)"), tr("Headphones (front panel jack)"),
+                                      tr("Both speakers and headphones")};
+            ImGui::SetNextItemWidth(320 * s);
+            if (ImGui::Combo(tr("Output to"), &settings_.outputTarget, outNames, 3)) applyOutputSettings(true);
+            HelpTip(tr("As soon as anything is plugged into the front panel, the system assumes headphones and mutes the speakers on the "
+                       "back. Choose the output here and this app keeps it that way while it runs."));
+            if (mx.isOpen()) {
+                const bool lo = mx.jackPlugged("Line Out Front"), hp = mx.jackPlugged("Front Headphone");
+                ImGui::TextDisabled(tr("Rear speaker jack: %s    Front headphone jack: %s"), lo ? tr("plugged in") : tr("not plugged in"),
+                                    hp ? tr("plugged in") : tr("not plugged in"));
+                if (hp && settings_.outputTarget != 1) {
+                    ImGui::PushTextWrapPos(0.f);
+                    ImGui::TextColored(ImGui::ColorConvertU32ToFloat4(P.yellow), "%s",
+                                       tr("Something is plugged into the front headphone jack. That jack is an output: if it is the guitar, "
+                                          "the computer cannot record it. Please plug the guitar into the blue line-in jack on the back "
+                                          "(next to the green speaker jack)."));
+                    ImGui::PopTextWrapPos();
+                }
             }
         }
         ImGui::SetNextItemWidth(300 * s);
@@ -417,13 +467,14 @@ void App::drawSettings() {
         ImGui::SetNextItemWidth(300 * s);
         ImGui::SliderFloat(tr("Guitar volume"), &settings_.guitarDb, -30.f, 12.f, "%.1f dB");
         float lo, hi;
-        if (mx.isOpen() && mx.masterRangeDb(lo, hi)) {
+        if (!st.pulseOutput && mx.isOpen() && mx.masterRangeDb(lo, hi)) {
             float hm = mx.masterDb();
             ImGui::SetNextItemWidth(300 * s);
             if (ImGui::SliderFloat(tr("Sound card master volume"), &hm, lo, hi, "%.1f dB")) mx.setMasterDb(hm);
             HelpTip(tr("The sound card's own output volume (normally controlled by the system volume). Raise it if the speakers are too quiet."));
         }
         bool sa = settings_.systemAudio;
+        ImGui::BeginDisabled(st.pulseOutput);  // other programs play on that device directly
         if (ImGui::Checkbox(tr("System audio passthrough (play videos/music while practicing)"), &sa)) {
             settings_.systemAudio = sa;
             if (sa && !st.simulated) {
@@ -438,7 +489,9 @@ void App::drawSettings() {
                    "\"GuitarStudio-SystemAudio\" becomes the default and its sound is mixed in; the original setup is restored on exit."));
         ImGui::SetNextItemWidth(300 * s);
         ImGui::SliderFloat(tr("System audio volume"), &settings_.systemAudioDb, -40.f, 6.f, "%.1f dB");
-        if (!sysAudioMsg_.empty()) ImGui::TextDisabled("%s", sysAudioMsg_.c_str());
+        ImGui::EndDisabled();
+        if (st.pulseOutput) ImGui::TextDisabled("%s", tr("Not needed now: other programs play on the same output device directly."));
+        else if (!sysAudioMsg_.empty()) ImGui::TextDisabled("%s", sysAudioMsg_.c_str());
         ImGui::Checkbox(tr("Safety limiter (protects your ears from feedback and loud pops)"), &limiterUi_);
         engine_.limiterOn = limiterUi_;
     }
@@ -446,7 +499,7 @@ void App::drawSettings() {
     if (ImGui::CollapsingHeader(tr("Practice"), ImGuiTreeNodeFlags_DefaultOpen)) {
         drawMetronomeOptions(300 * s);
         ImGui::SetNextItemWidth(300 * s);
-        ImGui::SliderFloat(tr("Latency calibration"), &settings_.latencyOffsetMs, -60.f, 60.f, "%+.0f ms");
+        ImGui::SliderFloat(tr("Latency calibration"), &settings_.latencyOffsetMs, -100.f, 300.f, "%+.0f ms");
         HelpTip(tr("If you are always judged \"late\" although you feel on time, increase this (or decrease it in the opposite case). Usually keep 0."));
         ImGui::SetNextItemWidth(300 * s);
         ImGui::SliderFloat(tr("Judging tolerance"), &settings_.tolerance, 0.6f, 1.6f, "%.2f");
